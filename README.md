@@ -9,4 +9,7 @@ The implementation is based on:
 XML message for SEPA Credit Transfer Initiation Implementation Guidelines for the Netherlands
 Version 5.0 – January 2012
 
+supported messages:
+NVB - pain.001.001.03  (Customer Credit Transfer Initiation)
+
 
