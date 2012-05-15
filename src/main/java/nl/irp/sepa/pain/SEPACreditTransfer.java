@@ -27,15 +27,27 @@ import nl.irp.sepa.pain.model.PaymentIdentification1;
 import nl.irp.sepa.pain.model.PaymentInstructionInformation3;
 import nl.irp.sepa.pain.model.PaymentMethod3Code;
 import nl.irp.sepa.pain.model.RemittanceInformation5;
-//IG SEPA Credit Transfer version 6.0
-public class SEPABetaalBatch {
+
+/**
+ * The Customer SEPA Credit Transfer Initiation message is sent by the initiating party to the debtor bank. It
+ * is used to request movement of funds from the debtor account to a creditor account.
+ * 
+ * 
+ * According to the Implementation Guidelines for the XML Customer Credit Transfer Initiation
+ * message UNIFI (ISO20022) - “pain.001.001.03” in the Netherlands.
+ * 
+ * And: XML message for SEPA Credit Transfer Initiation Implementation Guidelines for the Netherlands
+ * Version 5.0 – January 2012
+ * 
+ * @author Jasper Krijgsman <jasper@irp.nl>
+ */
+public class SEPACreditTransfer {
 	
-	// pain.001.001.03 document
 	private Document document = new Document();
 	private CustomerCreditTransferInitiationV03 customerCreditTransferInitiation;
 	private GroupHeader32 groupHeader;
 	
-	public SEPABetaalBatch() throws DatatypeConfigurationException {
+	public SEPACreditTransfer() throws DatatypeConfigurationException {
 		customerCreditTransferInitiation= new CustomerCreditTransferInitiationV03();
 		document.setCstmrCdtTrfInitn(customerCreditTransferInitiation);
 	}
