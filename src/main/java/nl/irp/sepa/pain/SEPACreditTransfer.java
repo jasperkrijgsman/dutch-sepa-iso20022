@@ -1,7 +1,12 @@
 package nl.irp.sepa.pain;
 
+import static com.google.common.base.Preconditions.*;
+import static nl.irp.sepa.pain.Utils.*;
+
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.UUID;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -11,6 +16,9 @@ import javax.xml.datatype.DatatypeFactory;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+
+import com.google.common.base.Splitter;
+
 import nl.irp.sepa.pain.model.AccountIdentification4Choice;
 import nl.irp.sepa.pain.model.ActiveOrHistoricCurrencyAndAmount;
 import nl.irp.sepa.pain.model.AmountType3Choice;
@@ -76,13 +84,14 @@ public class SEPACreditTransfer {
 		// party in the chain to unambiguously identify the message.
 		// The instructing party has to make sure that MessageIdentification is unique per
 		// instructed party for a pre-agreed period.
+		
+		// if no msgId is given create one
+		if(msgId==null)
+			msgId = UUID.randomUUID().toString();
 		groupHeader.setMsgId(msgId);
 		
 		// Date and time at which the message was created.
-		DateTime datetime = new DateTime();
-		groupHeader.setCreDtTm( 
-				DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(datetime.toGregorianCalendar()));
+		groupHeader.setCreDtTm( createXMLGregorianCalendar(new Date()));
 		
 		// Number of individual transactions contained in the message.
 		groupHeader.setNbOfTxs("0");
@@ -135,8 +144,7 @@ public class SEPACreditTransfer {
 		paymentInstructionInformation.setCtrlSum(BigDecimal.ZERO);
 
 		// This is the date on which the debtor's account is to be debited. 
-		paymentInstructionInformation.setReqdExctnDt(DatatypeFactory.newInstance()
-				.newXMLGregorianCalendar(reqdExctnDt.toDateTimeAtStartOfDay().toGregorianCalendar()));
+		paymentInstructionInformation.setReqdExctnDt( createXMLGregorianCalendar(reqdExctnDt.toDate()));
 		
 		// Party that owes an amount of money to the (ultimate) creditor.
 		PartyIdentification32 debtor = new PartyIdentification32();
@@ -206,43 +214,20 @@ public class SEPACreditTransfer {
 			
 			// Amount of money to be moved between the debtor and creditor, before deduction of 
 			// charges, expressed in the currency as ordered by the initiating party.
-			AmountType3Choice amountType = new AmountType3Choice();
-			ActiveOrHistoricCurrencyAndAmount currencyAndAmount = new ActiveOrHistoricCurrencyAndAmount();
-			currencyAndAmount.setCcy("EUR");
-			currencyAndAmount.setValue(amount);
-			amountType.setInstdAmt(currencyAndAmount);
-			creditTransferTransactionInformation.setAmt(amountType);
+			creditTransferTransactionInformation.setAmt( createAmount(amount) );
 			
 			// Financial institution servicing an account for the creditor.
-			BranchAndFinancialInstitutionIdentification4 creditorAgent = new BranchAndFinancialInstitutionIdentification4();
-			FinancialInstitutionIdentification7 creditorfinancialInstitutionIdentification = new FinancialInstitutionIdentification7();
-			// Only BIC is allowed.
-			creditorfinancialInstitutionIdentification.setBIC(creditorfinancialInstitutionBic);
-			creditorAgent.setFinInstnId(creditorfinancialInstitutionIdentification);
-			creditTransferTransactionInformation.setCdtrAgt(creditorAgent);
+			creditTransferTransactionInformation.setCdtrAgt( createFinInstnId(creditorfinancialInstitutionBic) );
 			
 			// Party to which an amount of money is due.
-			PartyIdentification32 creditor = new PartyIdentification32();
-			creditor.setNm(creditorNm);
-			creditTransferTransactionInformation.setCdtr(creditor);
+			creditTransferTransactionInformation.setCdtr( createParty(creditorNm) );
 			
 			// Unambiguous identification of the account of the creditor to which a credit entry will
 			// be posted as a result of the payment transaction.
-			CashAccount16 creditorAccount = new CashAccount16();
-			AccountIdentification4Choice creditorAccountId = new AccountIdentification4Choice();
-			// Only IBAN is allowed.
-			creditorAccountId.setIBAN(iban);
-			creditorAccount.setId(creditorAccountId);
-			creditTransferTransactionInformation.setCdtrAcct(creditorAccount);
+			creditTransferTransactionInformation.setCdtrAcct( createAccount(iban) );
 			
-			// Information supplied to enable the matching of an entry with the items that the
-			// transfer is intended to settle, such as commercial invoices in an accounts' receivable
-			// system
-			// TODO: structured
-			RemittanceInformation5 remittanceInformation = new RemittanceInformation5();
-			remittanceInformation.getUstrd().add(text);
-			creditTransferTransactionInformation.setRmtInf(remittanceInformation);
-
+			creditTransferTransactionInformation.setRmtInf( createRmtInf(text) );
+			
 			paymentInstructionInformation3.getCdtTrfTxInf().add(creditTransferTransactionInformation);
 			
 			// Control sum
@@ -256,6 +241,59 @@ public class SEPACreditTransfer {
 			groupHeader.setNbOfTxs(nbOfTxs.toString());
 			
 			return this;
+		}
+		
+		/**
+		 * Information supplied to enable the matching of an entry with the items that the
+		 * transfer is intended to settle, such as commercial invoices in an accounts' receivable
+		 * system
+		 * max length: 140
+		 * @return
+		 */
+		private RemittanceInformation5 createRmtInf(String info) {
+			checkArgument(info.length() <= 140); //maxLength: 140
+			checkArgument(info.length() >= 1);   //minLength: 1
+			
+			RemittanceInformation5 remittanceInformation = new RemittanceInformation5();
+			remittanceInformation.getUstrd().add(info);
+			return remittanceInformation;
+		}
+		
+		/**
+		 * Unambiguous identification of a account
+		 * @return 
+		 */
+		private CashAccount16 createAccount(String iban) {
+			CashAccount16 account = new CashAccount16();
+			AccountIdentification4Choice creditorAccountId = new AccountIdentification4Choice();
+			// Only IBAN is allowed.
+			creditorAccountId.setIBAN(iban);
+			account.setId(creditorAccountId);
+			return account;
+		}
+		
+		private PartyIdentification32 createParty(String nm) {
+			PartyIdentification32 party = new PartyIdentification32();
+			party.setNm(nm);
+			return party;
+		}
+		
+		private BranchAndFinancialInstitutionIdentification4 createFinInstnId(String bic) {
+			BranchAndFinancialInstitutionIdentification4 creditorAgent = new BranchAndFinancialInstitutionIdentification4();
+			FinancialInstitutionIdentification7 creditorfinancialInstitutionIdentification = new FinancialInstitutionIdentification7();
+			// Only BIC is allowed.
+			creditorfinancialInstitutionIdentification.setBIC(bic);
+			creditorAgent.setFinInstnId(creditorfinancialInstitutionIdentification);
+			return creditorAgent;
+		}
+		
+		private AmountType3Choice createAmount(BigDecimal amount) {
+			AmountType3Choice amt = new AmountType3Choice();
+			ActiveOrHistoricCurrencyAndAmount instdAmt = new ActiveOrHistoricCurrencyAndAmount();
+			instdAmt.setValue(amount);
+			instdAmt.setCcy("EUR");
+			amt.setInstdAmt(instdAmt);
+			return amt;
 		}
 	}
 	

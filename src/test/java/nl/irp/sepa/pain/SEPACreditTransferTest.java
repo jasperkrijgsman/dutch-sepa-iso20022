@@ -1,7 +1,6 @@
 package nl.irp.sepa.pain;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.math.BigDecimal;
 
 import javax.xml.bind.JAXBException;
