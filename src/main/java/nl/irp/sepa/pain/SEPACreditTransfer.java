@@ -1,7 +1,11 @@
 package nl.irp.sepa.pain;
 
-import static com.google.common.base.Preconditions.*;
-import static nl.irp.sepa.pain.Utils.*;
+import static nl.irp.sepa.pain.Utils.createAccount;
+import static nl.irp.sepa.pain.Utils.createAmount;
+import static nl.irp.sepa.pain.Utils.createFinInstnId;
+import static nl.irp.sepa.pain.Utils.createParty;
+import static nl.irp.sepa.pain.Utils.createRmtInf;
+import static nl.irp.sepa.pain.Utils.createXMLGregorianCalendar;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -12,29 +16,17 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-
-import com.google.common.base.Splitter;
-
-import nl.irp.sepa.pain.model.AccountIdentification4Choice;
-import nl.irp.sepa.pain.model.ActiveOrHistoricCurrencyAndAmount;
-import nl.irp.sepa.pain.model.AmountType3Choice;
-import nl.irp.sepa.pain.model.BranchAndFinancialInstitutionIdentification4;
-import nl.irp.sepa.pain.model.CashAccount16;
 import nl.irp.sepa.pain.model.CreditTransferTransactionInformation10;
 import nl.irp.sepa.pain.model.CustomerCreditTransferInitiationV03;
 import nl.irp.sepa.pain.model.Document;
-import nl.irp.sepa.pain.model.FinancialInstitutionIdentification7;
 import nl.irp.sepa.pain.model.GroupHeader32;
 import nl.irp.sepa.pain.model.ObjectFactory;
-import nl.irp.sepa.pain.model.PartyIdentification32;
 import nl.irp.sepa.pain.model.PaymentIdentification1;
 import nl.irp.sepa.pain.model.PaymentInstructionInformation3;
 import nl.irp.sepa.pain.model.PaymentMethod3Code;
-import nl.irp.sepa.pain.model.RemittanceInformation5;
+
+import org.joda.time.LocalDate;
 
 /**
  * The Customer SEPA Credit Transfer Initiation message is sent by the initiating party to the debtor bank. It
@@ -42,7 +34,7 @@ import nl.irp.sepa.pain.model.RemittanceInformation5;
  * 
  * 
  * According to the Implementation Guidelines for the XML Customer Credit Transfer Initiation
- * message UNIFI (ISO20022) - “pain.001.001.03” in the Netherlands.
+ * message UNIFI (ISO20022) - "pain.001.001.03" in the Netherlands.
  * 
  * And: XML message for SEPA Credit Transfer Initiation Implementation Guidelines for the Netherlands
  * Version 5.0 – January 2012
@@ -78,7 +70,7 @@ public class SEPACreditTransfer {
 	 * @param name Name of the party that initiates the payment.
 	 * @throws DatatypeConfigurationException 
 	 */
-	public void buildGroupHeader(String msgId, String name) throws DatatypeConfigurationException {
+	public void buildGroupHeader(String msgId, String name, Date date) throws DatatypeConfigurationException {
 		groupHeader =  new GroupHeader32();
 		// Point to point reference, as assigned by the instructing party, and sent to the next
 		// party in the chain to unambiguously identify the message.
@@ -91,7 +83,7 @@ public class SEPACreditTransfer {
 		groupHeader.setMsgId(msgId);
 		
 		// Date and time at which the message was created.
-		groupHeader.setCreDtTm( createXMLGregorianCalendar(new Date()));
+		groupHeader.setCreDtTm( createXMLGregorianCalendar(date));
 		
 		// Number of individual transactions contained in the message.
 		groupHeader.setNbOfTxs("0");
@@ -100,9 +92,7 @@ public class SEPACreditTransfer {
 		groupHeader.setCtrlSum(BigDecimal.ZERO);
 		
 		// Party that initiates the payment.
-		PartyIdentification32 partyIdentification = new PartyIdentification32();
-		partyIdentification.setNm(name);
-		groupHeader.setInitgPty(partyIdentification);
+		groupHeader.setInitgPty( createParty(name) );
 	
 		customerCreditTransferInitiation.setGrpHdr(groupHeader);
 	}
@@ -147,28 +137,14 @@ public class SEPACreditTransfer {
 		paymentInstructionInformation.setReqdExctnDt( createXMLGregorianCalendar(reqdExctnDt.toDate()));
 		
 		// Party that owes an amount of money to the (ultimate) creditor.
-		PartyIdentification32 debtor = new PartyIdentification32();
-		paymentInstructionInformation.setDbtr(debtor);
-		debtor.setNm(debtorNm);
+		paymentInstructionInformation.setDbtr( createParty(debtorNm) );
 
 		// Unambiguous identification of the account of the debtor to which a debit entry will be
 		// made as a result of the transaction.
-		CashAccount16 debtorAccount = new CashAccount16();
-		paymentInstructionInformation.setDbtrAcct(debtorAccount);
-		// Account id,  Only IBAN is allowed.
-		AccountIdentification4Choice debtorAccountId = new AccountIdentification4Choice();
-		debtorAccountId.setIBAN(debtorAccountIBAN);
-		debtorAccount.setId(debtorAccountId);
-		paymentInstructionInformation.setDbtrAcct(debtorAccount);
+		paymentInstructionInformation.setDbtrAcct( createAccount(debtorAccountIBAN) );
 		
 		// Financial institution servicing an account for the debtor.
-		BranchAndFinancialInstitutionIdentification4 debtorAgent = new BranchAndFinancialInstitutionIdentification4();
-		paymentInstructionInformation.setDbtrAgt(debtorAgent);
-		FinancialInstitutionIdentification7 financialInstitutionIdentification = new FinancialInstitutionIdentification7();
-		// Only BIC is allowed.
-		financialInstitutionIdentification.setBIC(financialInstitutionBIC);
-		debtorAgent.setFinInstnId(financialInstitutionIdentification);
-		paymentInstructionInformation.setDbtrAgt(debtorAgent);
+		paymentInstructionInformation.setDbtrAgt( createFinInstnId(financialInstitutionBIC) );
 		
 		customerCreditTransferInitiation.getPmtInf().add(paymentInstructionInformation);
 		
@@ -242,59 +218,7 @@ public class SEPACreditTransfer {
 			
 			return this;
 		}
-		
-		/**
-		 * Information supplied to enable the matching of an entry with the items that the
-		 * transfer is intended to settle, such as commercial invoices in an accounts' receivable
-		 * system
-		 * max length: 140
-		 * @return
-		 */
-		private RemittanceInformation5 createRmtInf(String info) {
-			checkArgument(info.length() <= 140); //maxLength: 140
-			checkArgument(info.length() >= 1);   //minLength: 1
-			
-			RemittanceInformation5 remittanceInformation = new RemittanceInformation5();
-			remittanceInformation.getUstrd().add(info);
-			return remittanceInformation;
-		}
-		
-		/**
-		 * Unambiguous identification of a account
-		 * @return 
-		 */
-		private CashAccount16 createAccount(String iban) {
-			CashAccount16 account = new CashAccount16();
-			AccountIdentification4Choice creditorAccountId = new AccountIdentification4Choice();
-			// Only IBAN is allowed.
-			creditorAccountId.setIBAN(iban);
-			account.setId(creditorAccountId);
-			return account;
-		}
-		
-		private PartyIdentification32 createParty(String nm) {
-			PartyIdentification32 party = new PartyIdentification32();
-			party.setNm(nm);
-			return party;
-		}
-		
-		private BranchAndFinancialInstitutionIdentification4 createFinInstnId(String bic) {
-			BranchAndFinancialInstitutionIdentification4 creditorAgent = new BranchAndFinancialInstitutionIdentification4();
-			FinancialInstitutionIdentification7 creditorfinancialInstitutionIdentification = new FinancialInstitutionIdentification7();
-			// Only BIC is allowed.
-			creditorfinancialInstitutionIdentification.setBIC(bic);
-			creditorAgent.setFinInstnId(creditorfinancialInstitutionIdentification);
-			return creditorAgent;
-		}
-		
-		private AmountType3Choice createAmount(BigDecimal amount) {
-			AmountType3Choice amt = new AmountType3Choice();
-			ActiveOrHistoricCurrencyAndAmount instdAmt = new ActiveOrHistoricCurrencyAndAmount();
-			instdAmt.setValue(amount);
-			instdAmt.setCcy("EUR");
-			amt.setInstdAmt(instdAmt);
-			return amt;
-		}
+
 	}
 	
 }

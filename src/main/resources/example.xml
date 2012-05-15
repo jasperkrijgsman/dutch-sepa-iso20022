@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03">
+    <CstmrCdtTrfInitn>
+        <GrpHdr>
+            <MsgId>test-01</MsgId>
+            <CreDtTm>2012-01-01T00:00:00.000+01:00</CreDtTm>
+            <NbOfTxs>1</NbOfTxs>
+            <CtrlSum>10.1</CtrlSum>
+            <InitgPty>
+                <Nm>Stedelijk Wonen</Nm>
+            </InitgPty>
+        </GrpHdr>
+        <PmtInf>
+            <PmtInfId>test-01-a</PmtInfId>
+            <PmtMtd>TRF</PmtMtd>
+            <NbOfTxs>1</NbOfTxs>
+            <CtrlSum>10.1</CtrlSum>
+            <ReqdExctnDt>2012-01-01T00:00:00.000+01:00</ReqdExctnDt>
+            <Dbtr>
+                <Nm>VvE accaciastraat</Nm>
+            </Dbtr>
+            <DbtrAcct>
+                <Id>
+                    <IBAN>NL44RABO0123456789</IBAN>
+                </Id>
+            </DbtrAcct>
+            <DbtrAgt>
+                <FinInstnId>
+                    <BIC>RABONL2U</BIC>
+                </FinInstnId>
+            </DbtrAgt>
+            <CdtTrfTxInf>
+                <PmtId>
+                    <EndToEndId>test-01-a-1</EndToEndId>
+                </PmtId>
+                <Amt>
+                    <InstdAmt Ccy="EUR">10.1</InstdAmt>
+                </Amt>
+                <CdtrAgt>
+                    <FinInstnId>
+                        <BIC>RABONL2U</BIC>
+                    </FinInstnId>
+                </CdtrAgt>
+                <Cdtr>
+                    <Nm>Jan Klaassen</Nm>
+                </Cdtr>
+                <CdtrAcct>
+                    <Id>
+                        <IBAN>NL44RABO0123456789</IBAN>
+                    </Id>
+                </CdtrAcct>
+                <RmtInf>
+                    <Ustrd>factuur 00001</Ustrd>
+                </RmtInf>
+            </CdtTrfTxInf>
+        </PmtInf>
+    </CstmrCdtTrfInitn>
+</Document>
