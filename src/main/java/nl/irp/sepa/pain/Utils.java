@@ -1,6 +1,19 @@
 package nl.irp.sepa.pain;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import iso.std.iso._20022.tech.xsd.pain_001_001.AccountIdentification4Choice;
+import iso.std.iso._20022.tech.xsd.pain_001_001.ActiveOrHistoricCurrencyAndAmount;
+import iso.std.iso._20022.tech.xsd.pain_001_001.AmountType3Choice;
+import iso.std.iso._20022.tech.xsd.pain_001_001.BranchAndFinancialInstitutionIdentification4;
+import iso.std.iso._20022.tech.xsd.pain_001_001.CashAccount16;
+import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceInformation2;
+import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceType1Choice;
+import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceType2;
+import iso.std.iso._20022.tech.xsd.pain_001_001.DocumentType3Code;
+import iso.std.iso._20022.tech.xsd.pain_001_001.FinancialInstitutionIdentification7;
+import iso.std.iso._20022.tech.xsd.pain_001_001.PartyIdentification32;
+import iso.std.iso._20022.tech.xsd.pain_001_001.RemittanceInformation5;
+import iso.std.iso._20022.tech.xsd.pain_001_001.StructuredRemittanceInformation7;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -11,20 +24,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import nl.irp.sepa.pain.model.AccountIdentification4Choice;
-import nl.irp.sepa.pain.model.ActiveOrHistoricCurrencyAndAmount;
-import nl.irp.sepa.pain.model.AmountType3Choice;
-import nl.irp.sepa.pain.model.BranchAndFinancialInstitutionIdentification4;
-import nl.irp.sepa.pain.model.CashAccount16;
-import nl.irp.sepa.pain.model.CreditorReferenceInformation2;
-import nl.irp.sepa.pain.model.CreditorReferenceType1Choice;
-import nl.irp.sepa.pain.model.CreditorReferenceType2;
-import nl.irp.sepa.pain.model.DocumentType3Code;
-import nl.irp.sepa.pain.model.FinancialInstitutionIdentification7;
-import nl.irp.sepa.pain.model.PartyIdentification32;
-import nl.irp.sepa.pain.model.RemittanceInformation5;
-import nl.irp.sepa.pain.model.StructuredRemittanceInformation7;
 
 public class Utils {
 

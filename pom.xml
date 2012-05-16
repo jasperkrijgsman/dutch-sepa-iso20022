@@ -56,8 +56,9 @@
 					<verbose>true</verbose>
 					<schemaIncludes>
 						<include>pain.001.001.03.xsd</include>
+						<include>camt.053.001.02.xsd</include>
 					</schemaIncludes>
-					<generatePackage>nl.irp.sepa.pain.model</generatePackage>
+					<!--<generatePackage>nl.irp.sepa.pain.model</generatePackage>-->
 				</configuration>
 			</plugin>
 		</plugins>

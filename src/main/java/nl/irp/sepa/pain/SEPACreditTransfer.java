@@ -5,7 +5,17 @@ import static nl.irp.sepa.pain.Utils.createAmount;
 import static nl.irp.sepa.pain.Utils.createFinInstnId;
 import static nl.irp.sepa.pain.Utils.createParty;
 import static nl.irp.sepa.pain.Utils.createRmtInf;
-import static nl.irp.sepa.pain.Utils.*;
+import static nl.irp.sepa.pain.Utils.createXMLGregorianCalendar;
+import static nl.irp.sepa.pain.Utils.createXMLGregorianCalendarDate;
+import iso.std.iso._20022.tech.xsd.pain_001_001.ChargeBearerType1Code;
+import iso.std.iso._20022.tech.xsd.pain_001_001.CreditTransferTransactionInformation10;
+import iso.std.iso._20022.tech.xsd.pain_001_001.CustomerCreditTransferInitiationV03;
+import iso.std.iso._20022.tech.xsd.pain_001_001.Document;
+import iso.std.iso._20022.tech.xsd.pain_001_001.GroupHeader32;
+import iso.std.iso._20022.tech.xsd.pain_001_001.ObjectFactory;
+import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentIdentification1;
+import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentInstructionInformation3;
+import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentMethod3Code;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -17,19 +27,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import nl.irp.sepa.pain.model.ChargeBearerType1Code;
-import nl.irp.sepa.pain.model.CreditTransferTransactionInformation10;
-import nl.irp.sepa.pain.model.CustomerCreditTransferInitiationV03;
-import nl.irp.sepa.pain.model.Document;
-import nl.irp.sepa.pain.model.GroupHeader32;
-import nl.irp.sepa.pain.model.ObjectFactory;
-import nl.irp.sepa.pain.model.PaymentIdentification1;
-import nl.irp.sepa.pain.model.PaymentInstructionInformation3;
-import nl.irp.sepa.pain.model.PaymentMethod3Code;
-
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.ReadableInstant;
 
 /**
  * The Customer SEPA Credit Transfer Initiation message is sent by the initiating party to the debtor bank. It
