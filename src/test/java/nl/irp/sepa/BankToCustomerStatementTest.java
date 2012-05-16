@@ -1,4 +1,4 @@
-package nl.irp.sepa.pain;
+package nl.irp.sepa;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

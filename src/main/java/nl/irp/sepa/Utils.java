@@ -1,4 +1,4 @@
-package nl.irp.sepa.pain;
+package nl.irp.sepa;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import iso.std.iso._20022.tech.xsd.pain_001_001.AccountIdentification4Choice;

@@ -1,4 +1,4 @@
-package nl.irp.sepa.pain;
+package nl.irp.sepa;
 
 
 

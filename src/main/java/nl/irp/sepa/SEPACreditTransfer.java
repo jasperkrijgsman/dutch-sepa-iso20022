@@ -1,12 +1,12 @@
-package nl.irp.sepa.pain;
+package nl.irp.sepa;
 
-import static nl.irp.sepa.pain.Utils.createAccount;
-import static nl.irp.sepa.pain.Utils.createAmount;
-import static nl.irp.sepa.pain.Utils.createFinInstnId;
-import static nl.irp.sepa.pain.Utils.createParty;
-import static nl.irp.sepa.pain.Utils.createRmtInf;
-import static nl.irp.sepa.pain.Utils.createXMLGregorianCalendar;
-import static nl.irp.sepa.pain.Utils.createXMLGregorianCalendarDate;
+import static nl.irp.sepa.Utils.createAccount;
+import static nl.irp.sepa.Utils.createAmount;
+import static nl.irp.sepa.Utils.createFinInstnId;
+import static nl.irp.sepa.Utils.createParty;
+import static nl.irp.sepa.Utils.createRmtInf;
+import static nl.irp.sepa.Utils.createXMLGregorianCalendar;
+import static nl.irp.sepa.Utils.createXMLGregorianCalendarDate;
 import iso.std.iso._20022.tech.xsd.pain_001_001.ChargeBearerType1Code;
 import iso.std.iso._20022.tech.xsd.pain_001_001.CreditTransferTransactionInformation10;
 import iso.std.iso._20022.tech.xsd.pain_001_001.CustomerCreditTransferInitiationV03;
