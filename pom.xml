@@ -105,4 +105,19 @@
 			<version>11.0.1</version>
 		</dependency>
 	</dependencies>
+	
+	<distributionManagement>
+		<!-- use the following if you're not using a snapshot version. -->
+		<repository>
+			<id>wosi</id>
+			<name>Releases</name>
+			<url>http://dev.wosi.org/nexus/content/repositories/releases/</url>
+		</repository>
+		<!-- use the following if you ARE using a snapshot version. -->
+		<snapshotRepository>
+			<id>wosi</id>
+			<name>Snapshots</name>
+			<url>http://dev.wosi.org/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
