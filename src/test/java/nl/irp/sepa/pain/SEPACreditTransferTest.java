@@ -1,10 +1,7 @@
 package nl.irp.sepa.pain;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 
@@ -15,16 +12,14 @@ import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-import org.custommonkey.xmlunit.*;
-import org.custommonkey.xmlunit.exceptions.XpathException;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-
-import sun.misc.Resource;
 
 public class SEPACreditTransferTest extends XMLTestCase {
 
@@ -37,18 +32,28 @@ public class SEPACreditTransferTest extends XMLTestCase {
 
 		NamespaceContext ctx = new SimpleNamespaceContext(ns);
 		XMLUnit.setXpathNamespaceContext(ctx);
+		XMLUnit.setIgnoreComments(true);
+		XMLUnit.setIgnoreWhitespace(true);
+		XMLUnit.setIgnoreDiffBetweenTextAndCDATA(true);
 	}
 	
 	@Test
 	public void test() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
-		LocalDate today = new LocalDate(2012, 01, 01);
+		LocalDateTime today = new LocalDateTime(2010, 9, 28, 14, 07);
 		SEPACreditTransfer transfer = new SEPACreditTransfer();
 		
-		transfer.buildGroupHeader("test-01", "Stedelijk Wonen", today.toDate());
+		transfer.buildGroupHeader("message-id-001", "Bedrijfsnaam", today.toDate());
 		
 		transfer
-			.betaalgroep("test-01-a", today, "VvE accaciastraat", "NL44RABO0123456789", "RABONL2U")
-				.creditTransfer("test-01-a-1", new BigDecimal("10.1"), "RABONL2U", "Jan Klaassen", "NL44RABO0123456789", "factuur 00001");
+			.betaalgroep("minimaal gevuld", new LocalDate(2009,11,01), "Naam", "NL44RABO0123456789", "RABONL2U")
+				.creditTransfer("non ref", new BigDecimal("10.1"), "ABNANL2A", "Naam creditor", "NL90ABNA0111111111", "vrije tekst");
+		
+		/*
+		transfer
+			.betaalgroep("maximaal gevuld", new LocalDate(2009,11,01), "Naam", "NL44RABO0123456789", "RABONL2U")
+				.creditTransfer("End-to-end-id-debtor-to-creditor-01", new BigDecimal("20.2"), "ABNANL2A", 
+						"Naam creditor", "NL90ABNA0111111111", "jlkjlkj");
+		*/
 		
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		transfer.write(stream);

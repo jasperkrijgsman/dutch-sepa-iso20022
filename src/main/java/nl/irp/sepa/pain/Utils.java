@@ -3,10 +3,12 @@ package nl.irp.sepa.pain;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -15,9 +17,14 @@ import nl.irp.sepa.pain.model.ActiveOrHistoricCurrencyAndAmount;
 import nl.irp.sepa.pain.model.AmountType3Choice;
 import nl.irp.sepa.pain.model.BranchAndFinancialInstitutionIdentification4;
 import nl.irp.sepa.pain.model.CashAccount16;
+import nl.irp.sepa.pain.model.CreditorReferenceInformation2;
+import nl.irp.sepa.pain.model.CreditorReferenceType1Choice;
+import nl.irp.sepa.pain.model.CreditorReferenceType2;
+import nl.irp.sepa.pain.model.DocumentType3Code;
 import nl.irp.sepa.pain.model.FinancialInstitutionIdentification7;
 import nl.irp.sepa.pain.model.PartyIdentification32;
 import nl.irp.sepa.pain.model.RemittanceInformation5;
+import nl.irp.sepa.pain.model.StructuredRemittanceInformation7;
 
 public class Utils {
 
@@ -28,6 +35,24 @@ public class Utils {
 		XMLGregorianCalendar createDate;
 		try {
 			createDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
+			createDate.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
+			createDate.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+		} catch (DatatypeConfigurationException e) {
+			throw new RuntimeException(e);
+		}
+
+		return createDate;
+	}
+	
+	public static XMLGregorianCalendar createXMLGregorianCalendarDate(Date currentDateTime) {
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(currentDateTime);
+
+		XMLGregorianCalendar createDate;
+		try {
+			createDate = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(
+				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH),
+				DatatypeConstants.FIELD_UNDEFINED);
 		} catch (DatatypeConfigurationException e) {
 			throw new RuntimeException(e);
 		}
@@ -48,6 +73,35 @@ public class Utils {
 		
 		RemittanceInformation5 remittanceInformation = new RemittanceInformation5();
 		remittanceInformation.getUstrd().add(info);
+		return remittanceInformation;
+	}
+	
+	/**
+	 * Information supplied to enable the matching of an entry with the items that the
+	 * transfer is intended to settle, such as commercial invoices in an accounts' receivable
+	 * system
+	 * max length: 140
+	 * @return
+	 */
+	public static RemittanceInformation5 createRmtInf_struct(String ref) {
+		//checkArgument(info.length() <= 140); //maxLength: 140
+		//checkArgument(info.length() >= 1);   //minLength: 1
+		
+		RemittanceInformation5 remittanceInformation = new RemittanceInformation5();
+		StructuredRemittanceInformation7 structuredRemittanceInformation = new StructuredRemittanceInformation7();
+		CreditorReferenceInformation2 creditorReferenceInformation = new CreditorReferenceInformation2();
+		structuredRemittanceInformation.setCdtrRefInf(creditorReferenceInformation);
+		
+		// Only 'SCOR' is allowed.
+		CreditorReferenceType2 creditorReferenceType = new CreditorReferenceType2();
+		CreditorReferenceType1Choice creditorReferenceType1Choice = new CreditorReferenceType1Choice();	
+		creditorReferenceType1Choice.setCd(DocumentType3Code.SCOR);
+		creditorReferenceType.setCdOrPrtry(creditorReferenceType1Choice);
+		creditorReferenceInformation.setTp(creditorReferenceType);
+		
+		creditorReferenceInformation.setRef(ref);
+		
+		remittanceInformation.getStrd().add(structuredRemittanceInformation);
 		return remittanceInformation;
 	}
 	

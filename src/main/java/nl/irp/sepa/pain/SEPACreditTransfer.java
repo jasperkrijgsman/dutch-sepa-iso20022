@@ -5,7 +5,7 @@ import static nl.irp.sepa.pain.Utils.createAmount;
 import static nl.irp.sepa.pain.Utils.createFinInstnId;
 import static nl.irp.sepa.pain.Utils.createParty;
 import static nl.irp.sepa.pain.Utils.createRmtInf;
-import static nl.irp.sepa.pain.Utils.createXMLGregorianCalendar;
+import static nl.irp.sepa.pain.Utils.*;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -17,6 +17,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import nl.irp.sepa.pain.model.ChargeBearerType1Code;
 import nl.irp.sepa.pain.model.CreditTransferTransactionInformation10;
 import nl.irp.sepa.pain.model.CustomerCreditTransferInitiationV03;
 import nl.irp.sepa.pain.model.Document;
@@ -27,6 +28,8 @@ import nl.irp.sepa.pain.model.PaymentInstructionInformation3;
 import nl.irp.sepa.pain.model.PaymentMethod3Code;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.ReadableInstant;
 
 /**
  * The Customer SEPA Credit Transfer Initiation message is sent by the initiating party to the debtor bank. It
@@ -134,7 +137,7 @@ public class SEPACreditTransfer {
 		paymentInstructionInformation.setCtrlSum(BigDecimal.ZERO);
 
 		// This is the date on which the debtor's account is to be debited. 
-		paymentInstructionInformation.setReqdExctnDt( createXMLGregorianCalendar(reqdExctnDt.toDate()));
+		paymentInstructionInformation.setReqdExctnDt( createXMLGregorianCalendarDate(reqdExctnDt.toDate()));
 		
 		// Party that owes an amount of money to the (ultimate) creditor.
 		paymentInstructionInformation.setDbtr( createParty(debtorNm) );
@@ -192,6 +195,9 @@ public class SEPACreditTransfer {
 			// charges, expressed in the currency as ordered by the initiating party.
 			creditTransferTransactionInformation.setAmt( createAmount(amount) );
 			
+			// Only 'SLEV' is allowed. 
+			creditTransferTransactionInformation.setChrgBr(ChargeBearerType1Code.SLEV);
+			
 			// Financial institution servicing an account for the creditor.
 			creditTransferTransactionInformation.setCdtrAgt( createFinInstnId(creditorfinancialInstitutionBic) );
 			
@@ -213,7 +219,7 @@ public class SEPACreditTransfer {
 			// Number of transactions
 			paymentInstructionInformation3.setNbOfTxs( String.valueOf(paymentInstructionInformation3.getCdtTrfTxInf().size()) );
 			Integer nbOfTxs = Integer.parseInt(groupHeader.getNbOfTxs());
-			nbOfTxs += 1;
+			nbOfTxs = nbOfTxs + 1;
 			groupHeader.setNbOfTxs(nbOfTxs.toString());
 			
 			return this;
