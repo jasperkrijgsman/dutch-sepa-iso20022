@@ -8,6 +8,7 @@ import static nl.irp.sepa.sdd.Utils.createParty;
 import static nl.irp.sepa.sdd.Utils.createPaymentIdentification;
 import static nl.irp.sepa.sdd.Utils.createRmtInf;
 import static nl.irp.sepa.sdd.Utils.createXMLGregorianCalendar;
+import static nl.irp.sepa.sdd.Utils.createXMLGregorianCalendarDate;
 import iso.std.iso._20022.tech.xsd.pain_008_001.CustomerDirectDebitInitiationV02;
 import iso.std.iso._20022.tech.xsd.pain_008_001.DirectDebitTransactionInformation9;
 import iso.std.iso._20022.tech.xsd.pain_008_001.Document;
@@ -24,9 +25,6 @@ import java.util.UUID;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.joda.time.LocalDate;
 
 
 /**
@@ -120,8 +118,7 @@ public class DirectDebitInitiation {
 			
 			// Date and time at which the creditor requests that the amount of money is to be
 			// collected from the debtor.
-			XMLGregorianCalendar reqdColltnDtCal = createXMLGregorianCalendar(reqdColltnDt);
-			paymentInstructionInformation.setReqdColltnDt(reqdColltnDtCal);
+			paymentInstructionInformation.setReqdColltnDt( createXMLGregorianCalendarDate(reqdColltnDt) );
 			
 			// Party to which an amount of money is due.
 			paymentInstructionInformation.setCdtr( createParty(creditor) );
