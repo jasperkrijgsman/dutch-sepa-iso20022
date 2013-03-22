@@ -1,19 +1,20 @@
-package nl.irp.sepa;
+package nl.irp.sepa.sdd;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import iso.std.iso._20022.tech.xsd.pain_001_001.AccountIdentification4Choice;
-import iso.std.iso._20022.tech.xsd.pain_001_001.ActiveOrHistoricCurrencyAndAmount;
-import iso.std.iso._20022.tech.xsd.pain_001_001.AmountType3Choice;
-import iso.std.iso._20022.tech.xsd.pain_001_001.BranchAndFinancialInstitutionIdentification4;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CashAccount16;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceInformation2;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceType1Choice;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceType2;
-import iso.std.iso._20022.tech.xsd.pain_001_001.DocumentType3Code;
-import iso.std.iso._20022.tech.xsd.pain_001_001.FinancialInstitutionIdentification7;
-import iso.std.iso._20022.tech.xsd.pain_001_001.PartyIdentification32;
-import iso.std.iso._20022.tech.xsd.pain_001_001.RemittanceInformation5;
-import iso.std.iso._20022.tech.xsd.pain_001_001.StructuredRemittanceInformation7;
+
+import iso.std.iso._20022.tech.xsd.pain_008_001.AccountIdentification4Choice;
+import iso.std.iso._20022.tech.xsd.pain_008_001.ActiveOrHistoricCurrencyAndAmount;
+import iso.std.iso._20022.tech.xsd.pain_008_001.BranchAndFinancialInstitutionIdentification4;
+import iso.std.iso._20022.tech.xsd.pain_008_001.CashAccount16;
+import iso.std.iso._20022.tech.xsd.pain_008_001.CreditorReferenceInformation2;
+import iso.std.iso._20022.tech.xsd.pain_008_001.CreditorReferenceType1Choice;
+import iso.std.iso._20022.tech.xsd.pain_008_001.CreditorReferenceType2;
+import iso.std.iso._20022.tech.xsd.pain_008_001.DocumentType3Code;
+import iso.std.iso._20022.tech.xsd.pain_008_001.FinancialInstitutionIdentification7;
+import iso.std.iso._20022.tech.xsd.pain_008_001.PartyIdentification32;
+import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentIdentification1;
+import iso.std.iso._20022.tech.xsd.pain_008_001.RemittanceInformation5;
+import iso.std.iso._20022.tech.xsd.pain_008_001.StructuredRemittanceInformation7;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -72,8 +73,7 @@ public class Utils {
 	 * @return
 	 */
 	public static RemittanceInformation5 createRmtInf(String info) {
-		checkArgument(info.length() <= 140); //maxLength: 140
-		checkArgument(info.length() >= 1);   //minLength: 1
+		checkMax140Text(info);
 		
 		RemittanceInformation5 remittanceInformation = new RemittanceInformation5();
 		remittanceInformation.getUstrd().add(info);
@@ -88,8 +88,7 @@ public class Utils {
 	 * @return
 	 */
 	public static RemittanceInformation5 createRmtInf_struct(String ref) {
-		checkArgument(ref.length() <= 35, "maxLength: 35");
-		checkArgument(ref.length() >= 1,  "minLength: 1");
+		checkMax35Text(ref);
 		
 		RemittanceInformation5 remittanceInformation = new RemittanceInformation5();
 		StructuredRemittanceInformation7 structuredRemittanceInformation = new StructuredRemittanceInformation7();
@@ -125,9 +124,31 @@ public class Utils {
 	}
 	
 	public static PartyIdentification32 createParty(String nm) {
+		checkMax70Text(nm);
+		
 		PartyIdentification32 party = new PartyIdentification32();
 		party.setNm(nm);
 		return party;
+	}
+	
+	/**
+	 * @param instructionIdentification Unique identification as assigned by an instructing party for an instructed party to 
+	 * unambiguously identify the instruction.
+	 * @param endToEndIdentification Unique identification assigned by the initiating party to unumbiguously identify the
+	 * transaction. This identification is passed on, unchanged, throughout the entire end-
+	 * to-end chain.
+	 * @return
+	 */
+	public static PaymentIdentification1 createPaymentIdentification(String instructionIdentification, String endToEndIdentification) {
+		PaymentIdentification1 paymentIdentification = new PaymentIdentification1();
+		 
+		checkMax35Text(instructionIdentification);
+		paymentIdentification.setInstrId(instructionIdentification);
+
+		checkMax35Text(endToEndIdentification);
+		paymentIdentification.setEndToEndId(endToEndIdentification);
+		
+		return paymentIdentification;
 	}
 	
 	public static BranchAndFinancialInstitutionIdentification4 createFinInstnId(String bic) {
@@ -141,13 +162,26 @@ public class Utils {
 		return creditorAgent;
 	}
 	
-	public static AmountType3Choice createAmount(BigDecimal amount) {
-		AmountType3Choice amt = new AmountType3Choice();
+	public static ActiveOrHistoricCurrencyAndAmount createAmount(BigDecimal amount) {
 		ActiveOrHistoricCurrencyAndAmount instdAmt = new ActiveOrHistoricCurrencyAndAmount();
 		instdAmt.setValue(amount);
 		instdAmt.setCcy("EUR");
-		amt.setInstdAmt(instdAmt);
-		return amt;
+		return instdAmt;
+	}
+	
+	private static void checkMax35Text(String text) {
+		checkArgument(text.length()<=35, "length of field is more than 35");
+		checkArgument(text.length()>=1, "length of field is less than 1");
+	}
+	
+	private static void checkMax70Text(String text) {
+		checkArgument(text.length()<=70, "length of field is more than 70");
+		checkArgument(text.length()>=1, "length of field is less than 1");
+	}
+	
+	private static void checkMax140Text(String text) {
+		checkArgument(text.length()<=140, "length of field is more than 140");
+		checkArgument(text.length()>=1, "length of field is less than 1");
 	}
 	
 }

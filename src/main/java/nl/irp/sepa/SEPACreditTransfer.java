@@ -29,6 +29,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.joda.time.LocalDate;
 
+import static com.google.common.base.Preconditions.*;
+
 /**
  * The Customer SEPA Credit Transfer Initiation message is sent by the initiating party to the debtor bank. It
  * is used to request movement of funds from the debtor account to a creditor account.
@@ -48,7 +50,7 @@ public class SEPACreditTransfer {
 	private CustomerCreditTransferInitiationV03 customerCreditTransferInitiation;
 	private GroupHeader32 groupHeader;
 	
-	public SEPACreditTransfer() throws DatatypeConfigurationException {
+	public SEPACreditTransfer() {
 		customerCreditTransferInitiation= new CustomerCreditTransferInitiationV03();
 		document.setCstmrCdtTrfInitn(customerCreditTransferInitiation);
 	}
@@ -71,16 +73,17 @@ public class SEPACreditTransfer {
 	 * @param name Name of the party that initiates the payment.
 	 * @throws DatatypeConfigurationException 
 	 */
-	public void buildGroupHeader(String msgId, String name, Date date) throws DatatypeConfigurationException {
+	public void buildGroupHeader(String msgId, String name, Date date) {
 		groupHeader =  new GroupHeader32();
 		// Point to point reference, as assigned by the instructing party, and sent to the next
 		// party in the chain to unambiguously identify the message.
 		// The instructing party has to make sure that MessageIdentification is unique per
 		// instructed party for a pre-agreed period.
-		
 		// if no msgId is given create one
 		if(msgId==null)
-			msgId = UUID.randomUUID().toString();
+			msgId = UUID.randomUUID().toString().replaceAll("-", "");
+		checkArgument(msgId.length()<=35, "length of msgId is more than 35");
+		checkArgument(msgId.length()>1, "length of msgId is less than 1");
 		groupHeader.setMsgId(msgId);
 		
 		// Date and time at which the message was created.
@@ -116,7 +119,12 @@ public class SEPACreditTransfer {
 	 */
 	public Betaalgroep betaalgroep(
 			String pmtInfId, LocalDate reqdExctnDt,
-			String debtorNm, String debtorAccountIBAN, String financialInstitutionBIC) throws DatatypeConfigurationException {
+			String debtorNm, String debtorAccountIBAN, String financialInstitutionBIC) {
+		
+		checkArgument(pmtInfId.length()<=35, "length of pmtInfId is more than 35");
+		checkArgument(pmtInfId.length()>1, "length of pmtInfId is less than 1");
+		
+		
 		PaymentInstructionInformation3 paymentInstructionInformation = new PaymentInstructionInformation3();
 		//customerCreditTransferInitiation.getPmtInf().add(paymentInstructionInformation);
 		

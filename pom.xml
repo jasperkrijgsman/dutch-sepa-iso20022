@@ -61,6 +61,7 @@
 					<schemaIncludes>
 						<include>pain.001.001.03.xsd</include>
 						<include>camt.053.001.02.xsd</include>
+						<include>pain.008.001.02.xsd</include>
 					</schemaIncludes>
 					<!--<generatePackage>nl.irp.sepa.pain.model</generatePackage> -->
 					<args>
@@ -103,6 +104,12 @@
 	</build>
 
 	<dependencies>
+		<!-- Apache commons-lang -->
+                <dependency>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                    <version>3.1</version>
+                </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
