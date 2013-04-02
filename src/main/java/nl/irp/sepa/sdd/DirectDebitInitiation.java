@@ -146,7 +146,7 @@ public class DirectDebitInitiation {
 			
 			// Party that owes an amount of money to the (ultimate) creditor.
 			directDebitTransactionInformation.setDbtr( createParty(debtor) );
-			directDebitTransactionInformation.setDbtrAgtAcct( createAccount(debtorIban) );
+			directDebitTransactionInformation.setDbtrAcct( createAccount(debtorIban) );
 			
 			directDebitTransactionInformation.setRmtInf( createRmtInf(remittanceInformation) );
 			
