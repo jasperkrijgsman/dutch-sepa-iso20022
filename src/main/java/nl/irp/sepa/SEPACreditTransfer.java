@@ -1,21 +1,19 @@
 package nl.irp.sepa;
 
-import static nl.irp.sepa.Utils.createAccount;
-import static nl.irp.sepa.Utils.createAmount;
-import static nl.irp.sepa.Utils.createFinInstnId;
-import static nl.irp.sepa.Utils.createParty;
-import static nl.irp.sepa.Utils.createRmtInf;
-import static nl.irp.sepa.Utils.createXMLGregorianCalendar;
-import static nl.irp.sepa.Utils.createXMLGregorianCalendarDate;
+import static com.google.common.base.Preconditions.checkArgument;
+import static nl.irp.sepa.Utils.*;
 import iso.std.iso._20022.tech.xsd.pain_001_001.ChargeBearerType1Code;
 import iso.std.iso._20022.tech.xsd.pain_001_001.CreditTransferTransactionInformation10;
 import iso.std.iso._20022.tech.xsd.pain_001_001.CustomerCreditTransferInitiationV03;
 import iso.std.iso._20022.tech.xsd.pain_001_001.Document;
 import iso.std.iso._20022.tech.xsd.pain_001_001.GroupHeader32;
+import iso.std.iso._20022.tech.xsd.pain_001_001.LocalInstrument2Choice;
 import iso.std.iso._20022.tech.xsd.pain_001_001.ObjectFactory;
 import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentIdentification1;
 import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentInstructionInformation3;
 import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentMethod3Code;
+import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentTypeInformation19;
+import iso.std.iso._20022.tech.xsd.pain_001_001.ServiceLevel8Choice;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -28,8 +26,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.joda.time.LocalDate;
-
-import static com.google.common.base.Preconditions.*;
 
 /**
  * The Customer SEPA Credit Transfer Initiation message is sent by the initiating party to the debtor bank. It
@@ -141,6 +137,13 @@ public class SEPACreditTransfer {
 
 		// Total of all individual amounts included in the group
 		paymentInstructionInformation.setCtrlSum(BigDecimal.ZERO);
+		
+		// Payment Type Information
+		PaymentTypeInformation19 paymentTypeInformation = new PaymentTypeInformation19();
+		ServiceLevel8Choice serviceLevel8Choice = new ServiceLevel8Choice();
+		serviceLevel8Choice.setCd("SEPA");//Vaste waarde 'SEPA'
+		paymentTypeInformation.setSvcLvl(serviceLevel8Choice);
+		paymentInstructionInformation.setPmtTpInf(paymentTypeInformation);
 
 		// This is the date on which the debtor's account is to be debited. 
 		paymentInstructionInformation.setReqdExctnDt( createXMLGregorianCalendarDate(reqdExctnDt.toDate()));
@@ -154,6 +157,8 @@ public class SEPACreditTransfer {
 		
 		// Financial institution servicing an account for the debtor.
 		paymentInstructionInformation.setDbtrAgt( createFinInstnId(financialInstitutionBIC) );
+		
+		paymentInstructionInformation.setChrgBr(ChargeBearerType1Code.SLEV);
 		
 		customerCreditTransferInitiation.getPmtInf().add(paymentInstructionInformation);
 		
@@ -202,7 +207,7 @@ public class SEPACreditTransfer {
 			creditTransferTransactionInformation.setAmt( createAmount(amount) );
 			
 			// Only 'SLEV' is allowed. 
-			creditTransferTransactionInformation.setChrgBr(ChargeBearerType1Code.SLEV);
+			//creditTransferTransactionInformation.setChrgBr(ChargeBearerType1Code.SLEV);
 			
 			// Financial institution servicing an account for the creditor.
 			creditTransferTransactionInformation.setCdtrAgt( createFinInstnId(creditorfinancialInstitutionBic) );

@@ -39,30 +39,23 @@ public class SEPACreditTransferTest extends XMLTestCase {
 	
 	@Test
 	public void test() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
-		LocalDateTime today = new LocalDateTime(2010, 9, 28, 14, 07);
+		LocalDateTime today = new LocalDateTime("2012-05-02T14:52:09"); 
 		SEPACreditTransfer transfer = new SEPACreditTransfer();
 		
-		transfer.buildGroupHeader("message-id-001", "Bedrijfsnaam", today.toDate());
+		transfer.buildGroupHeader("000001", "Klantnaam", today.toDate());
 		
 		transfer
-			.betaalgroep("minimaal gevuld", new LocalDate(2009,11,01), "Naam", "NL44RABO0123456789", "RABONL2U")
-				.creditTransfer("non ref", new BigDecimal("10.1"), "ABNANL2A", "Naam creditor", "NL90ABNA0111111111", "vrije tekst");
-		
-		/*
-		transfer
-			.betaalgroep("maximaal gevuld", new LocalDate(2009,11,01), "Naam", "NL44RABO0123456789", "RABONL2U")
-				.creditTransfer("End-to-end-id-debtor-to-creditor-01", new BigDecimal("20.2"), "ABNANL2A", 
-						"Naam creditor", "NL90ABNA0111111111", "jlkjlkj");
-		*/
+			.betaalgroep("12345", new LocalDate(2012, 5, 2), "Debiteur", "NL10ABNA1234567890", "ABNANL2A")
+				.creditTransfer("Onze referentie: 123456", new BigDecimal("386.00"), "RABONL2U", "Crediteur", "NL91RABO1234567890", "Ref. 2012.0386");
 		
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		transfer.write(stream);
 		String xml = stream.toString("UTF-8");
-		System.out.print(xml);
-		
-		///////
-		String example = Resources.toString( Resources.getResource("example.xml"), Charsets.UTF_8);
+
+		String example = Resources.toString( Resources.getResource("pain.001.001.03 voorbeeldbestand.xml"), Charsets.UTF_8);
 		assertXMLEqual(example, xml);
 	}
+	
+	
 
 }

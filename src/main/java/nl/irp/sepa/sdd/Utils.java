@@ -11,8 +11,13 @@ import iso.std.iso._20022.tech.xsd.pain_008_001.CreditorReferenceType1Choice;
 import iso.std.iso._20022.tech.xsd.pain_008_001.CreditorReferenceType2;
 import iso.std.iso._20022.tech.xsd.pain_008_001.DocumentType3Code;
 import iso.std.iso._20022.tech.xsd.pain_008_001.FinancialInstitutionIdentification7;
+import iso.std.iso._20022.tech.xsd.pain_008_001.GenericPersonIdentification1;
+import iso.std.iso._20022.tech.xsd.pain_008_001.Party6Choice;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PartyIdentification32;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentIdentification1;
+import iso.std.iso._20022.tech.xsd.pain_008_001.PersonIdentification5;
+import iso.std.iso._20022.tech.xsd.pain_008_001.PersonIdentificationSchemeName1Choice;
+import iso.std.iso._20022.tech.xsd.pain_008_001.PostalAddress6;
 import iso.std.iso._20022.tech.xsd.pain_008_001.RemittanceInformation5;
 import iso.std.iso._20022.tech.xsd.pain_008_001.StructuredRemittanceInformation7;
 
@@ -20,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -120,6 +126,13 @@ public class Utils {
 		// Only IBAN is allowed.
 		creditorAccountId.setIBAN(iban);
 		account.setId(creditorAccountId);
+	
+		return account;
+	}
+	
+	public static CashAccount16 createAccount(String iban, String currency) {
+		CashAccount16 account = createAccount(iban);
+		account.setCcy(currency);
 		return account;
 	}
 	
@@ -128,6 +141,38 @@ public class Utils {
 		
 		PartyIdentification32 party = new PartyIdentification32();
 		party.setNm(nm);
+		return party;
+	}
+	
+	public static PartyIdentification32 createParty(String nm, String ctry, List<String> adrLine) {
+		checkMax70Text(nm);
+		
+		PartyIdentification32 party = new PartyIdentification32();
+		party.setNm(nm);
+		
+		PostalAddress6 address = new PostalAddress6();
+		address.setCtry(ctry);
+		address.getAdrLine().addAll(adrLine);
+		
+		party.setPstlAdr(address);
+		return party;
+	}
+	
+	public static PartyIdentification32 createIdParty(String id) {	
+		PartyIdentification32 party = new PartyIdentification32();
+		Party6Choice idChoice = new Party6Choice();
+		PersonIdentification5 personIdentification = new PersonIdentification5();
+		
+		GenericPersonIdentification1 personId = new GenericPersonIdentification1();
+		personId.setId(id);
+		
+		PersonIdentificationSchemeName1Choice personIdScheme = new PersonIdentificationSchemeName1Choice();
+		personIdScheme.setPrtry("SEPA");
+		personId.setSchmeNm(personIdScheme);
+		
+		personIdentification.getOthr().add(personId);
+		idChoice.setPrvtId(personIdentification);
+		party.setId(idChoice);
 		return party;
 	}
 	

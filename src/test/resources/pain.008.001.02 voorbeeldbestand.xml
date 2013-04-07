@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<CstmrDrctDbtInitn>
+	<GrpHdr>
+		<MsgId>1000004207</MsgId>
+		<CreDtTm>2012-02-22T09:29:54</CreDtTm>
+		<NbOfTxs>1</NbOfTxs>
+		<CtrlSum>1600.00</CtrlSum>
+		<InitgPty><Nm>Naam</Nm></InitgPty>
+	</GrpHdr>
+	<PmtInf>
+		<PmtInfId>1000004207</PmtInfId>
+		<PmtMtd>DD</PmtMtd>
+		<NbOfTxs>1</NbOfTxs>
+		<CtrlSum>1600.00</CtrlSum>
+	<PmtTpInf>
+		<SvcLvl><Cd>SEPA</Cd></SvcLvl>
+		<LclInstrm><Cd>CORE</Cd></LclInstrm>
+		<SeqTp>RCUR</SeqTp>
+	</PmtTpInf>
+	<ReqdColltnDt>2012-02-21</ReqdColltnDt>
+	<Cdtr>
+		<Nm>Naam</Nm>
+		<PstlAdr>
+			<Ctry>NL</Ctry>
+			<AdrLine>Dorpstraat 1</AdrLine>
+			<AdrLine>Amsterdam</AdrLine>
+		</PstlAdr>
+	</Cdtr>
+	<CdtrAcct>
+		<Id><IBAN>DE12345678901234567890</IBAN></Id><Ccy>EUR</Ccy>
+	</CdtrAcct>
+	<CdtrAgt><FinInstnId><BIC>ABNADEFFFRA</BIC></FinInstnId></CdtrAgt>
+	<ChrgBr>SLEV</ChrgBr>
+	<DrctDbtTxInf>
+		<PmtId>
+			<InstrId>01-E30220000000382012</InstrId>
+			<EndToEndId>2000000038</EndToEndId>
+		</PmtId>
+		<InstdAmt Ccy="EUR">1600.00</InstdAmt>
+		<DrctDbtTx>
+			<MndtRltdInf>
+				<MndtId>MANDAAT123456</MndtId>
+				<DtOfSgntr>2010-09-05</DtOfSgntr>
+				<AmdmntInd>false</AmdmntInd>
+			</MndtRltdInf>
+			<CdtrSchmeId>
+				<Id>
+					<PrvtId>
+						<Othr>
+							<Id>NL89ZZZ011234567890</Id>
+							<SchmeNm>
+								<Prtry>SEPA</Prtry>
+							</SchmeNm>
+						</Othr>
+					</PrvtId>
+				</Id>
+			</CdtrSchmeId>
+		</DrctDbtTx>
+			<DbtrAgt><FinInstnId><BIC>NBAGDE3E</BIC></FinInstnId></DbtrAgt>
+			<Dbtr>
+				<Nm>FICO Customer account</Nm>
+				<PstlAdr>
+					<Ctry>DE</Ctry>
+					<AdrLine>123, ABC street</AdrLine>
+					<AdrLine>32547 Frankfurt Germany</AdrLine>
+				</PstlAdr>
+			</Dbtr>
+		<DbtrAcct>
+			<Id><IBAN>DE12345678901234567890</IBAN></Id>
+		</DbtrAcct>
+		<Purp><Cd>OTHR</Cd></Purp>
+		<RmtInf>
+			<Ustrd>/INV/ 8/29/2011</Ustrd>
+		</RmtInf>
+	</DrctDbtTxInf>
+</PmtInf>
+</CstmrDrctDbtInitn>
+</Document>

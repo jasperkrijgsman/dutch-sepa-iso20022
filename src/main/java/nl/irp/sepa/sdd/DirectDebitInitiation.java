@@ -1,7 +1,7 @@
 package nl.irp.sepa.sdd;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static nl.irp.sepa.sdd.Utils.createAccount;
+import static nl.irp.sepa.sdd.Utils.*;
 import static nl.irp.sepa.sdd.Utils.createAmount;
 import static nl.irp.sepa.sdd.Utils.createFinInstnId;
 import static nl.irp.sepa.sdd.Utils.createParty;
@@ -9,26 +9,33 @@ import static nl.irp.sepa.sdd.Utils.createPaymentIdentification;
 import static nl.irp.sepa.sdd.Utils.createRmtInf;
 import static nl.irp.sepa.sdd.Utils.createXMLGregorianCalendar;
 import static nl.irp.sepa.sdd.Utils.createXMLGregorianCalendarDate;
+import iso.std.iso._20022.tech.xsd.pain_008_001.ChargeBearerType1Code;
 import iso.std.iso._20022.tech.xsd.pain_008_001.CustomerDirectDebitInitiationV02;
+import iso.std.iso._20022.tech.xsd.pain_008_001.DirectDebitTransaction6;
 import iso.std.iso._20022.tech.xsd.pain_008_001.DirectDebitTransactionInformation9;
 import iso.std.iso._20022.tech.xsd.pain_008_001.Document;
 import iso.std.iso._20022.tech.xsd.pain_008_001.GroupHeader39;
 import iso.std.iso._20022.tech.xsd.pain_008_001.LocalInstrument2Choice;
+import iso.std.iso._20022.tech.xsd.pain_008_001.MandateRelatedInformation6;
 import iso.std.iso._20022.tech.xsd.pain_008_001.ObjectFactory;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentInstructionInformation4;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentMethod2Code;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentTypeInformation20;
+import iso.std.iso._20022.tech.xsd.pain_008_001.Purpose2Choice;
 import iso.std.iso._20022.tech.xsd.pain_008_001.SequenceType1Code;
 import iso.std.iso._20022.tech.xsd.pain_008_001.ServiceLevel8Choice;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+
+import org.joda.time.LocalDate;
 
 
 /**
@@ -91,8 +98,11 @@ public class DirectDebitInitiation {
         marshaller.marshal(new ObjectFactory().createDocument(document), os);
 	}
 	
-	public PaymentInstruction paymentInstruction(String pmtInfId, Date reqdColltnDt, String creditor, String creditorAccount, String creditorBic) {
-		PaymentInstruction paymentInstruction = new PaymentInstruction(pmtInfId, reqdColltnDt, creditor, creditorAccount, creditorBic);
+	public PaymentInstruction paymentInstruction(
+			String pmtInfId, Date reqdColltnDt, 
+			String creditor, String creditorCountry, List<String> addressLines, 
+			String creditorAccount, String creditorBic) {
+		PaymentInstruction paymentInstruction = new PaymentInstruction(pmtInfId, reqdColltnDt, creditor, creditorCountry, addressLines, creditorAccount, creditorBic);
 		this.customerDirectDebitInitiationV02.getPmtInf().add(paymentInstruction.getPaymentInstructionInformation());
 		return paymentInstruction;
 	}
@@ -107,7 +117,12 @@ public class DirectDebitInitiation {
 		 * @param reqdColltnDt Date and time at which the creditor requests that the amount of money is to be 
 		 * collected from the debtor.
 		 */
-		public PaymentInstruction(String pmtInfId, Date reqdColltnDt, String creditor, String creditorAccount, String creditorBic) {
+		public PaymentInstruction(
+				String pmtInfId, Date reqdColltnDt, 
+				String creditor, 
+				String creditorCountry, List<String> addressLines,
+				String creditorAccount, String creditorBic) {
+			
 			paymentInstructionInformation = new PaymentInstructionInformation4(); 
 			
 			// Unique identification, as assigned by a sending party, to
@@ -119,17 +134,95 @@ public class DirectDebitInitiation {
 			// Specifies the means of payment that will be used to move the amount of money.
 			// DD=DirectDebit 
 			paymentInstructionInformation.setPmtMtd(PaymentMethod2Code.DD);
+		
+			// TODO
+			paymentInstructionInformation.setNbOfTxs("0");
+
+			// TODO
+			paymentInstructionInformation.setCtrlSum(BigDecimal.ZERO);
+			
+			// TODO
+			paymentInstructionInformation.setPmtTpInf(makePaymentTypeInformation());
 			
 			// Date and time at which the creditor requests that the amount of money is to be
 			// collected from the debtor.
 			paymentInstructionInformation.setReqdColltnDt( createXMLGregorianCalendarDate(reqdColltnDt) );
 			
 			// Party to which an amount of money is due.
-			paymentInstructionInformation.setCdtr( createParty(creditor) );
+			paymentInstructionInformation.setCdtr( createParty(creditor, creditorCountry, addressLines) );
 			// Unambiguous identification of the account of the creditor to which a credit entry will
 			// be posted as a result of the payment transaction. Only IBAN is allowed.
-			paymentInstructionInformation.setCdtrAcct( createAccount(creditorAccount) );
+			paymentInstructionInformation.setCdtrAcct( createAccount(creditorAccount, "EUR") );
 			
+			paymentInstructionInformation.setCdtrAgt( createFinInstnId(creditorBic) );	
+			
+			paymentInstructionInformation.setChrgBr(ChargeBearerType1Code.SLEV);
+			
+		}
+		
+		public DirectDebitTransactionInformation9 addTransaction(
+				String instructionIdentification, String endToEndIdentification,
+				BigDecimal amount,
+				String mandateId, LocalDate dateOfSignature, String cdtrSchmeId,
+				String debtor, String debtorIban, String debtorBic,
+				String debtorCtry, List<String> debtorAdrLine,
+				String remittanceInformation) {
+			DirectDebitTransactionInformation9 directDebitTransactionInformation = new DirectDebitTransactionInformation9();
+			
+			// Set of elements used to reference a payment instruction.
+			directDebitTransactionInformation.setPmtId( createPaymentIdentification(instructionIdentification, endToEndIdentification));
+			
+			// Amount of money to be moved between the debtor and creditor, before deduction
+			// of charges, expressed in the currency as ordered by the initiating party.
+			directDebitTransactionInformation.setInstdAmt( createAmount(amount) );
+			
+			//TODO:
+			directDebitTransactionInformation.setDrctDbtTx(t(mandateId, dateOfSignature, cdtrSchmeId));
+			
+			// Financial institution servicing an account for the debtor.
+			directDebitTransactionInformation.setDbtrAgt( createFinInstnId(debtorBic) );
+			
+			// Party that owes an amount of money to the (ultimate) creditor.
+			directDebitTransactionInformation.setDbtr( createParty(debtor, debtorCtry, debtorAdrLine) );
+			directDebitTransactionInformation.setDbtrAcct( createAccount(debtorIban) );
+			
+			//TODO:
+			Purpose2Choice purpose = new Purpose2Choice();
+			purpose.setCd("OTHR");
+			directDebitTransactionInformation.setPurp(purpose);
+			
+			directDebitTransactionInformation.setRmtInf( createRmtInf(remittanceInformation) );
+			
+			paymentInstructionInformation.getDrctDbtTxInf().add(directDebitTransactionInformation);
+			
+			// TODO:
+			BigDecimal ctrlSum = groupHeader.getCtrlSum();
+			ctrlSum = ctrlSum.add(amount);
+			groupHeader.setCtrlSum(ctrlSum);
+			
+			int nbOfTxs = Integer.parseInt(groupHeader.getNbOfTxs());
+			nbOfTxs = nbOfTxs+1;
+			groupHeader.setNbOfTxs(String.valueOf(nbOfTxs));
+			
+			// TODO:
+			BigDecimal ictrlSum = paymentInstructionInformation.getCtrlSum();
+			ictrlSum = ictrlSum.add(amount);
+			paymentInstructionInformation.setCtrlSum(ictrlSum);
+			
+			int inbOfTxs = Integer.parseInt(paymentInstructionInformation.getNbOfTxs());
+			inbOfTxs = inbOfTxs+1;
+			paymentInstructionInformation.setNbOfTxs(String.valueOf(inbOfTxs));
+
+			
+			return directDebitTransactionInformation;
+		}
+		
+		public PaymentInstructionInformation4 getPaymentInstructionInformation() {
+			return paymentInstructionInformation;
+		}
+		
+		
+		private PaymentTypeInformation20 makePaymentTypeInformation() {
 			// Payment Type Information
 			PaymentTypeInformation20 paymentTypeInformation = new PaymentTypeInformation20();
 
@@ -150,49 +243,24 @@ public class DirectDebitInitiation {
 			// Na een afwijzing van een "FRST" of "OOFF" moet een herhaling als "FRST" aangegeven worden
 			// Als een "FRST" gestorneerd of geretourneerd wordt (alleen bij type "CORE") moet deze als "RCUR" ingestuurd worden
 			// Als een "OOFF" gestorneerd of geretourneerd wordt (alleen bij type "CORE") kan deze alleen met een nieuw mandaat ingestuurd worden
-			paymentTypeInformation.setSeqTp(SequenceType1Code.FRST);
-			
-			paymentInstructionInformation.setPmtTpInf(paymentTypeInformation);
-			
-			paymentInstructionInformation.setCdtrAgt( createFinInstnId(creditorBic) );		
+			paymentTypeInformation.setSeqTp(SequenceType1Code.RCUR);
+
+			return paymentTypeInformation;
 		}
 		
-		public DirectDebitTransactionInformation9 addTransaction(BigDecimal amount, String debtor, String debtorIban, String debtorBic, String remittanceInformation) {
-			DirectDebitTransactionInformation9 directDebitTransactionInformation = new DirectDebitTransactionInformation9();
+		private DirectDebitTransaction6 t(String mandateId, LocalDate dtOfSgntr, String cdtrSchmeId  ) {
+			DirectDebitTransaction6 transaction = new DirectDebitTransaction6();
 			
-			// Set of elements used to reference a payment instruction.
-			String instructionIdentification = UUID.randomUUID().toString().replaceAll("-", "");
-			String endToEndIdentification = UUID.randomUUID().toString().replaceAll("-", "");
-			directDebitTransactionInformation.setPmtId( createPaymentIdentification(instructionIdentification, endToEndIdentification));
+			MandateRelatedInformation6 mandateInf = new MandateRelatedInformation6();
+			mandateInf.setMndtId(mandateId);
+			mandateInf.setDtOfSgntr( createXMLGregorianCalendarDate(dtOfSgntr.toDate()));
+			mandateInf.setAmdmntInd(false);
+			transaction.setMndtRltdInf(mandateInf);
+
+			////
+			transaction.setCdtrSchmeId(createIdParty(cdtrSchmeId));
 			
-			// Amount of money to be moved between the debtor and creditor, before deduction
-			// of charges, expressed in the currency as ordered by the initiating party.
-			directDebitTransactionInformation.setInstdAmt( createAmount(amount) );
-			
-			// Financial institution servicing an account for the debtor.
-			directDebitTransactionInformation.setDbtrAgt( createFinInstnId(debtorBic) );
-			
-			// Party that owes an amount of money to the (ultimate) creditor.
-			directDebitTransactionInformation.setDbtr( createParty(debtor) );
-			directDebitTransactionInformation.setDbtrAcct( createAccount(debtorIban) );
-			
-			directDebitTransactionInformation.setRmtInf( createRmtInf(remittanceInformation) );
-			
-			paymentInstructionInformation.getDrctDbtTxInf().add(directDebitTransactionInformation);
-			
-			BigDecimal ctrlSum = groupHeader.getCtrlSum();
-			ctrlSum = ctrlSum.add(amount);
-			groupHeader.setCtrlSum(ctrlSum);
-			
-			int nbOfTxs = Integer.parseInt(groupHeader.getNbOfTxs());
-			nbOfTxs = nbOfTxs+1;
-			groupHeader.setNbOfTxs(String.valueOf(nbOfTxs));
-			
-			return directDebitTransactionInformation;
-		}
-		
-		public PaymentInstructionInformation4 getPaymentInstructionInformation() {
-			return paymentInstructionInformation;
+			return transaction;
 		}
 		
 	}

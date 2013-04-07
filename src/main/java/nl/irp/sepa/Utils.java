@@ -124,6 +124,12 @@ public class Utils {
 		return account;
 	}
 	
+	public static CashAccount16 createAccount(String iban, String currency) {
+		CashAccount16 account = createAccount(iban);
+		account.setCcy(currency);
+		return account;
+	}
+	
 	public static PartyIdentification32 createParty(String nm) {
 		PartyIdentification32 party = new PartyIdentification32();
 		party.setNm(nm);
