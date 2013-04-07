@@ -38,7 +38,7 @@ public class SEPACreditTransferTest extends XMLTestCase {
 	}
 	
 	@Test
-	public void test() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
+	public void testABN() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
 		LocalDateTime today = new LocalDateTime("2012-05-02T14:52:09"); 
 		SEPACreditTransfer transfer = new SEPACreditTransfer();
 		
@@ -52,10 +52,27 @@ public class SEPACreditTransferTest extends XMLTestCase {
 		transfer.write(stream);
 		String xml = stream.toString("UTF-8");
 
-		String example = Resources.toString( Resources.getResource("pain.001.001.03 voorbeeldbestand.xml"), Charsets.UTF_8);
+		String example = Resources.toString( Resources.getResource("abn/pain.001.001.03 voorbeeldbestand.xml"), Charsets.UTF_8);
 		assertXMLEqual(example, xml);
 	}
 	
-	
+	@Test
+	public void testING() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
+		LocalDateTime today = new LocalDateTime("2012-05-02T14:52:09"); 
+		SEPACreditTransfer transfer = new SEPACreditTransfer();
+		
+		transfer.buildGroupHeader("MSGID005", "IPNORGANIZTIONNAME", today.toDate());
+		
+		transfer
+			.betaalgroep("PAYID001", new LocalDate("2012-08-05"), "NAAM Debtor", "NL00INGB0000000001", "INGBNL2A")
+				.creditTransfer("E2EID001", new BigDecimal("1.01"), "INGBNL2A", "NAAM cdtr", "NL00INGB0000000002", "Ref. 2012.0386");
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		transfer.write(stream);
+		String xml = stream.toString("UTF-8");
+
+		String example = Resources.toString( Resources.getResource("ing/pain.001.001.03 voorbeeldbestand.xml"), Charsets.UTF_8);
+		assertXMLEqual(example, xml);
+	}
 
 }

@@ -1,5 +1,7 @@
 package nl.irp.sepa;
 
+import iso.std.iso._20022.tech.xsd.pain_008_001.SequenceType1Code;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -42,7 +44,7 @@ public class DirectDebitInitiationTest extends XMLTestCase {
 	}
 	
 	@Test
-	public void test() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
+	public void testABN() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
 		LocalDateTime today = new LocalDateTime("2012-02-22T09:29:54"); 
 		DirectDebitInitiation debitInitiation = new DirectDebitInitiation();
 		
@@ -52,7 +54,8 @@ public class DirectDebitInitiationTest extends XMLTestCase {
 		PaymentInstruction paymentInstruction = debitInitiation
 			.paymentInstruction(
 				pmtInfId, new LocalDate(2012, 2, 21).toDate(),
-				"Naam", "NL", ImmutableList.of("Dorpstraat 1", "Amsterdam"),
+				"Naam", SequenceType1Code.RCUR,
+				"NL", ImmutableList.of("Dorpstraat 1", "Amsterdam"),
 				"DE12345678901234567890", "ABNADEFFFRA");
 		
 		paymentInstruction.addTransaction(
@@ -61,8 +64,7 @@ public class DirectDebitInitiationTest extends XMLTestCase {
 			new BigDecimal("1600.00"),
 			"MANDAAT123456", new LocalDate("2010-09-05"), "NL89ZZZ011234567890",
 			"FICO Customer account",
-			"DE12345678901234567890",
-			"NBAGDE3E",
+			"DE12345678901234567890", "NBAGDE3E",
 			"DE", ImmutableList.of("123, ABC street", "32547 Frankfurt Germany"),
 			"/INV/ 8/29/2011");
 		
@@ -72,10 +74,44 @@ public class DirectDebitInitiationTest extends XMLTestCase {
 		
 		System.out.println(xml);
 
-		String example = Resources.toString( Resources.getResource("pain.008.001.02 voorbeeldbestand.xml"), Charsets.UTF_8);
+		String example = Resources.toString( Resources.getResource("abn/pain.008.001.02 voorbeeldbestand.xml"), Charsets.UTF_8);
 		assertXMLEqual(example, xml);
 	}
 	
+	@Test
+	public void testING() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
+		LocalDateTime today = new LocalDateTime("2012-02-22T09:29:54"); 
+		DirectDebitInitiation debitInitiation = new DirectDebitInitiation();
+		
+		debitInitiation.buildGroupHeader("MSGID001", "IPNORGANISATIENAAM", today.toDate());
+		
+		String pmtInfId = "PAYID001";
+		PaymentInstruction paymentInstruction = debitInitiation
+			.paymentInstruction(
+				pmtInfId, new LocalDate("2012-02-05").toDate(),
+				"NAAM", SequenceType1Code.OOFF,
+				"NL", ImmutableList.of("Dorpstraat 1", "Amsterdam"),
+				"NL00INGB0000000001", "INGBNL2A");
+		
+		paymentInstruction.addTransaction(
+			"01-E30220000000382012",     //InstrId
+			"E2EID001",                //EndToEndId
+			new BigDecimal("1.01"),
+			"MANDAATIDNR001", new LocalDate("2011-12-31"), "NL89ZZZ011234567890",
+			"NAAM",
+			"NL00INGB0000000002", "INGBNL2A",
+			"DE", ImmutableList.of("123, ABC street", "32547 Frankfurt Germany"),
+			"Omschrijving / vrije tekst");
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		debitInitiation.write(stream);
+		String xml = stream.toString("UTF-8");
+		
+		System.out.println(xml);
+
+		String example = Resources.toString( Resources.getResource("ing/pain.008.001.02 voorbeeldbestand.xml"), Charsets.UTF_8);
+		assertXMLEqual(example, xml);
+	}
 	
 
 }

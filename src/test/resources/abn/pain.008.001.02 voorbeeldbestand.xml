@@ -60,11 +60,13 @@
 			<DbtrAgt><FinInstnId><BIC>NBAGDE3E</BIC></FinInstnId></DbtrAgt>
 			<Dbtr>
 				<Nm>FICO Customer account</Nm>
+				<!--
 				<PstlAdr>
 					<Ctry>DE</Ctry>
 					<AdrLine>123, ABC street</AdrLine>
 					<AdrLine>32547 Frankfurt Germany</AdrLine>
 				</PstlAdr>
+				-->
 			</Dbtr>
 		<DbtrAcct>
 			<Id><IBAN>DE12345678901234567890</IBAN></Id>

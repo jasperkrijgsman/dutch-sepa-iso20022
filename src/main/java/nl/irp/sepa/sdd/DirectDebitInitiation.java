@@ -1,9 +1,10 @@
 package nl.irp.sepa.sdd;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static nl.irp.sepa.sdd.Utils.*;
+import static nl.irp.sepa.sdd.Utils.createAccount;
 import static nl.irp.sepa.sdd.Utils.createAmount;
 import static nl.irp.sepa.sdd.Utils.createFinInstnId;
+import static nl.irp.sepa.sdd.Utils.createIdParty;
 import static nl.irp.sepa.sdd.Utils.createParty;
 import static nl.irp.sepa.sdd.Utils.createPaymentIdentification;
 import static nl.irp.sepa.sdd.Utils.createRmtInf;
@@ -100,9 +101,15 @@ public class DirectDebitInitiation {
 	
 	public PaymentInstruction paymentInstruction(
 			String pmtInfId, Date reqdColltnDt, 
-			String creditor, String creditorCountry, List<String> addressLines, 
+			String creditor, SequenceType1Code type,
+			String creditorCountry, List<String> addressLines, 
 			String creditorAccount, String creditorBic) {
-		PaymentInstruction paymentInstruction = new PaymentInstruction(pmtInfId, reqdColltnDt, creditor, creditorCountry, addressLines, creditorAccount, creditorBic);
+		
+		PaymentInstruction paymentInstruction = new PaymentInstruction(
+				pmtInfId, reqdColltnDt, 
+				creditor, type,
+				creditorCountry, addressLines, 
+				creditorAccount, creditorBic);
 		this.customerDirectDebitInitiationV02.getPmtInf().add(paymentInstruction.getPaymentInstructionInformation());
 		return paymentInstruction;
 	}
@@ -119,7 +126,7 @@ public class DirectDebitInitiation {
 		 */
 		public PaymentInstruction(
 				String pmtInfId, Date reqdColltnDt, 
-				String creditor, 
+				String creditor, SequenceType1Code type,
 				String creditorCountry, List<String> addressLines,
 				String creditorAccount, String creditorBic) {
 			
@@ -142,7 +149,7 @@ public class DirectDebitInitiation {
 			paymentInstructionInformation.setCtrlSum(BigDecimal.ZERO);
 			
 			// TODO
-			paymentInstructionInformation.setPmtTpInf(makePaymentTypeInformation());
+			paymentInstructionInformation.setPmtTpInf(makePaymentTypeInformation(type));
 			
 			// Date and time at which the creditor requests that the amount of money is to be
 			// collected from the debtor.
@@ -183,7 +190,7 @@ public class DirectDebitInitiation {
 			directDebitTransactionInformation.setDbtrAgt( createFinInstnId(debtorBic) );
 			
 			// Party that owes an amount of money to the (ultimate) creditor.
-			directDebitTransactionInformation.setDbtr( createParty(debtor, debtorCtry, debtorAdrLine) );
+			directDebitTransactionInformation.setDbtr( createParty(debtor) );
 			directDebitTransactionInformation.setDbtrAcct( createAccount(debtorIban) );
 			
 			//TODO:
@@ -222,7 +229,7 @@ public class DirectDebitInitiation {
 		}
 		
 		
-		private PaymentTypeInformation20 makePaymentTypeInformation() {
+		private PaymentTypeInformation20 makePaymentTypeInformation(SequenceType1Code type) {
 			// Payment Type Information
 			PaymentTypeInformation20 paymentTypeInformation = new PaymentTypeInformation20();
 
@@ -243,7 +250,7 @@ public class DirectDebitInitiation {
 			// Na een afwijzing van een "FRST" of "OOFF" moet een herhaling als "FRST" aangegeven worden
 			// Als een "FRST" gestorneerd of geretourneerd wordt (alleen bij type "CORE") moet deze als "RCUR" ingestuurd worden
 			// Als een "OOFF" gestorneerd of geretourneerd wordt (alleen bij type "CORE") kan deze alleen met een nieuw mandaat ingestuurd worden
-			paymentTypeInformation.setSeqTp(SequenceType1Code.RCUR);
+			paymentTypeInformation.setSeqTp(type);
 
 			return paymentTypeInformation;
 		}
