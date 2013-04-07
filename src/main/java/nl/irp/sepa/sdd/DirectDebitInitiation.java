@@ -13,9 +13,13 @@ import iso.std.iso._20022.tech.xsd.pain_008_001.CustomerDirectDebitInitiationV02
 import iso.std.iso._20022.tech.xsd.pain_008_001.DirectDebitTransactionInformation9;
 import iso.std.iso._20022.tech.xsd.pain_008_001.Document;
 import iso.std.iso._20022.tech.xsd.pain_008_001.GroupHeader39;
+import iso.std.iso._20022.tech.xsd.pain_008_001.LocalInstrument2Choice;
 import iso.std.iso._20022.tech.xsd.pain_008_001.ObjectFactory;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentInstructionInformation4;
 import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentMethod2Code;
+import iso.std.iso._20022.tech.xsd.pain_008_001.PaymentTypeInformation20;
+import iso.std.iso._20022.tech.xsd.pain_008_001.SequenceType1Code;
+import iso.std.iso._20022.tech.xsd.pain_008_001.ServiceLevel8Choice;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -126,10 +130,34 @@ public class DirectDebitInitiation {
 			// be posted as a result of the payment transaction. Only IBAN is allowed.
 			paymentInstructionInformation.setCdtrAcct( createAccount(creditorAccount) );
 			
+			// Payment Type Information
+			PaymentTypeInformation20 paymentTypeInformation = new PaymentTypeInformation20();
+
+			ServiceLevel8Choice serviceLevel8Choice = new ServiceLevel8Choice();
+			serviceLevel8Choice.setCd("SEPA");//Vaste waarde 'SEPA'
+			paymentTypeInformation.setSvcLvl(serviceLevel8Choice);
+			
+			LocalInstrument2Choice localInstrument = new LocalInstrument2Choice();
+			localInstrument.setCd("CORE"); // "CORE" voor incasso's van particulieren
+			paymentTypeInformation.setLclInstrm(localInstrument);
+
+			//FRST eerste incasso binnen een serie op hetzelfde mandaat
+			//RCUR vervolgincasso binnen hetzelfde mandaat
+			//FNAL laatste incasso binnen hetzelfde mandaat
+			//OOFF enkelvoudige incasso zonder repetering
+			// Als de "Amendment indicator" (veld 2.50) op 'true' staat en de 
+			// "Original Debtor Agent"(veld 2.58) is "SMNDA" dan moet "FRST" gekozen	worden
+			// Na een afwijzing van een "FRST" of "OOFF" moet een herhaling als "FRST" aangegeven worden
+			// Als een "FRST" gestorneerd of geretourneerd wordt (alleen bij type "CORE") moet deze als "RCUR" ingestuurd worden
+			// Als een "OOFF" gestorneerd of geretourneerd wordt (alleen bij type "CORE") kan deze alleen met een nieuw mandaat ingestuurd worden
+			paymentTypeInformation.setSeqTp(SequenceType1Code.FRST);
+			
+			paymentInstructionInformation.setPmtTpInf(paymentTypeInformation);
+			
 			paymentInstructionInformation.setCdtrAgt( createFinInstnId(creditorBic) );		
 		}
 		
-		public void addTransaction(BigDecimal amount, String debtor, String debtorIban, String debtorBic, String remittanceInformation) {
+		public DirectDebitTransactionInformation9 addTransaction(BigDecimal amount, String debtor, String debtorIban, String debtorBic, String remittanceInformation) {
 			DirectDebitTransactionInformation9 directDebitTransactionInformation = new DirectDebitTransactionInformation9();
 			
 			// Set of elements used to reference a payment instruction.
@@ -160,6 +188,7 @@ public class DirectDebitInitiation {
 			nbOfTxs = nbOfTxs+1;
 			groupHeader.setNbOfTxs(String.valueOf(nbOfTxs));
 			
+			return directDebitTransactionInformation;
 		}
 		
 		public PaymentInstructionInformation4 getPaymentInstructionInformation() {
