@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchemainstance">
 	<CstmrCdtTrfInitn>
 		<GrpHdr>
 			<MsgId>MSGID005</MsgId>
-			<CreDtTm>2012-05-02T14:52:09</CreDtTm>
+			<CreDtTm>2013-04-02T14:52:09</CreDtTm>
 			<NbOfTxs>1</NbOfTxs>
 			<CtrlSum>1.01</CtrlSum>
 			<InitgPty>
@@ -21,13 +21,13 @@
 					<Cd>SEPA</Cd>
 				</SvcLvl>
 			</PmtTpInf>
-			<ReqdExctnDt>2012-08-05</ReqdExctnDt>
+			<ReqdExctnDt>2013-04-19</ReqdExctnDt>
 			<Dbtr>
 				<Nm>NAAM Debtor</Nm>
 			</Dbtr>
 			<DbtrAcct>
 				<Id>
-					<IBAN>NL00INGB0000000001</IBAN>
+					<IBAN>NL28INGB0000000001</IBAN>
 				</Id>
 			</DbtrAcct>
 			<DbtrAgt>
@@ -53,7 +53,7 @@
 				</Cdtr>
 				<CdtrAcct>
 					<Id>
-						<IBAN>NL00INGB0000000002</IBAN>
+						<IBAN>NL98INGB0000000002</IBAN>
 					</Id>
 				</CdtrAcct>
 				<RmtInf>

@@ -58,14 +58,14 @@ public class SEPACreditTransferTest extends XMLTestCase {
 	
 	@Test
 	public void testING() throws DatatypeConfigurationException, JAXBException, XpathException, SAXException, IOException {
-		LocalDateTime today = new LocalDateTime("2012-05-02T14:52:09"); 
+		LocalDateTime today = new LocalDateTime("2013-04-02T14:52:09"); 
 		SEPACreditTransfer transfer = new SEPACreditTransfer();
 		
 		transfer.buildGroupHeader("MSGID005", "IPNORGANIZTIONNAME", today.toDate());
 		
 		transfer
-			.betaalgroep("PAYID001", new LocalDate("2012-08-05"), "NAAM Debtor", "NL00INGB0000000001", "INGBNL2A")
-				.creditTransfer("E2EID001", new BigDecimal("1.01"), "INGBNL2A", "NAAM cdtr", "NL00INGB0000000002", "Ref. 2012.0386");
+			.betaalgroep("PAYID001", new LocalDate("2013-04-19"), "NAAM Debtor", "NL28INGB0000000001", "INGBNL2A")
+				.creditTransfer("E2EID001", new BigDecimal("1.01"), "INGBNL2A", "NAAM cdtr", "NL98INGB0000000002", "Ref. 2012.0386");
 		
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		transfer.write(stream);

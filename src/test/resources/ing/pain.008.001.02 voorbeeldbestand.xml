@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchemainstance">
 	<CstmrDrctDbtInitn>
 		<GrpHdr>
@@ -35,9 +35,8 @@
 			</Cdtr>
 			<CdtrAcct>
 				<Id>
-					<IBAN>NL00INGB0000000001</IBAN>
+					<IBAN>NL28INGB0000000001</IBAN>
 				</Id>
-				<Ccy>EUR</Ccy>
 			</CdtrAcct>
 			<CdtrAgt>
 				<FinInstnId>
@@ -80,7 +79,7 @@
 				</Dbtr>
 				<DbtrAcct>
 					<Id>
-						<IBAN>NL00INGB0000000002</IBAN>
+						<IBAN>NL98INGB0000000002</IBAN>
 					</Id>
 				</DbtrAcct>
 				<Purp>
