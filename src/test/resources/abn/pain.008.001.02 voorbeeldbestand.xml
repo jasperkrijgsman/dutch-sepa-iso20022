@@ -28,7 +28,7 @@
 		</PstlAdr>
 	</Cdtr>
 	<CdtrAcct>
-		<Id><IBAN>DE12345678901234567890</IBAN></Id><Ccy>EUR</Ccy>
+		<Id><IBAN>DE12345678901234567890</IBAN></Id>
 	</CdtrAcct>
 	<CdtrAgt><FinInstnId><BIC>ABNADEFFFRA</BIC></FinInstnId></CdtrAgt>
 	<ChrgBr>SLEV</ChrgBr>

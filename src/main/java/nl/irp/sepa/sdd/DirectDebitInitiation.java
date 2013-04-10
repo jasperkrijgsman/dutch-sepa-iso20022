@@ -159,7 +159,7 @@ public class DirectDebitInitiation {
 			paymentInstructionInformation.setCdtr( createParty(creditor, creditorCountry, addressLines) );
 			// Unambiguous identification of the account of the creditor to which a credit entry will
 			// be posted as a result of the payment transaction. Only IBAN is allowed.
-			paymentInstructionInformation.setCdtrAcct( createAccount(creditorAccount, "EUR") );
+			paymentInstructionInformation.setCdtrAcct( createAccount(creditorAccount) );
 			
 			paymentInstructionInformation.setCdtrAgt( createFinInstnId(creditorBic) );	
 			

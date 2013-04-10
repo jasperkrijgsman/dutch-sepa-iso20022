@@ -91,7 +91,7 @@ public class DirectDebitInitiationTest extends XMLTestCase {
 				pmtInfId, new LocalDate("2012-02-05").toDate(),
 				"NAAM", SequenceType1Code.OOFF,
 				"NL", ImmutableList.of("Dorpstraat 1", "Amsterdam"),
-				"NL00INGB0000000001", "INGBNL2A");
+				"NL28INGB0000000001", "INGBNL2A");
 		
 		paymentInstruction.addTransaction(
 			"01-E30220000000382012",     //InstrId
@@ -99,7 +99,7 @@ public class DirectDebitInitiationTest extends XMLTestCase {
 			new BigDecimal("1.01"),
 			"MANDAATIDNR001", new LocalDate("2011-12-31"), "NL89ZZZ011234567890",
 			"NAAM",
-			"NL00INGB0000000002", "INGBNL2A",
+			"NL98INGB0000000002", "INGBNL2A",
 			"DE", ImmutableList.of("123, ABC street", "32547 Frankfurt Germany"),
 			"Omschrijving / vrije tekst");
 		
