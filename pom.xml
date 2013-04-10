@@ -6,7 +6,7 @@
 	<groupId>nl.irp.sepa</groupId>
 	<artifactId>sepa-iso20022</artifactId>
 	<name>Dutch SEPA iso20022 utilities</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 	<inceptionYear>2012</inceptionYear>
 	<licenses>
@@ -140,13 +140,13 @@
 	<distributionManagement>
 		<!-- use the following if you're not using a snapshot version. -->
 		<repository>
-			<id>wosi</id>
+			<id>nexus-release</id>
 			<name>Releases</name>
 			<url>http://dev.wosi.org/nexus/content/repositories/releases/</url>
 		</repository>
 		<!-- use the following if you ARE using a snapshot version. -->
 		<snapshotRepository>
-			<id>wosi</id>
+			<id>nexus-snapshot</id>
 			<name>Snapshots</name>
 			<url>http://dev.wosi.org/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
