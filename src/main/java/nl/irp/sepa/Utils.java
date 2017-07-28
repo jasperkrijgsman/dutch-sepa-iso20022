@@ -1,30 +1,17 @@
 package nl.irp.sepa;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import iso.std.iso._20022.tech.xsd.pain_001_001.AccountIdentification4Choice;
-import iso.std.iso._20022.tech.xsd.pain_001_001.ActiveOrHistoricCurrencyAndAmount;
-import iso.std.iso._20022.tech.xsd.pain_001_001.AmountType3Choice;
-import iso.std.iso._20022.tech.xsd.pain_001_001.BranchAndFinancialInstitutionIdentification4;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CashAccount16;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceInformation2;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceType1Choice;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CreditorReferenceType2;
-import iso.std.iso._20022.tech.xsd.pain_001_001.DocumentType3Code;
-import iso.std.iso._20022.tech.xsd.pain_001_001.FinancialInstitutionIdentification7;
-import iso.std.iso._20022.tech.xsd.pain_001_001.PartyIdentification32;
-import iso.std.iso._20022.tech.xsd.pain_001_001.RemittanceInformation5;
-import iso.std.iso._20022.tech.xsd.pain_001_001.StructuredRemittanceInformation7;
-
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.regex.Pattern;
+import iso.std.iso._20022.tech.xsd.pain_001_001.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class Utils {
 	
@@ -32,38 +19,27 @@ public class Utils {
 	private static Pattern bicRegex =
 			Pattern.compile("([a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?)");
 
-	public static XMLGregorianCalendar createXMLGregorianCalendar(Date currentDateTime) {
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTime(currentDateTime);
-
-		XMLGregorianCalendar createDate;
+	public static XMLGregorianCalendar createXMLGregorianCalendarDate(LocalDate currentDateTime) {
 		try {
-			createDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
-			createDate.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-			createDate.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+			return DatatypeFactory.newInstance().newXMLGregorianCalendarDate(
+					currentDateTime.getYear(), currentDateTime.getMonthValue(), currentDateTime.getDayOfMonth(),
+					DatatypeConstants.FIELD_UNDEFINED);
 		} catch (DatatypeConfigurationException e) {
 			throw new RuntimeException(e);
 		}
-
-		return createDate;
 	}
-	
-	public static XMLGregorianCalendar createXMLGregorianCalendarDate(Date currentDateTime) {
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTime(currentDateTime);
 
-		XMLGregorianCalendar createDate;
+	public static XMLGregorianCalendar createXMLGregorianCalendarDate(LocalDateTime currentDateTime) {
 		try {
-			createDate = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(
-				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH),
-				DatatypeConstants.FIELD_UNDEFINED);
+			return DatatypeFactory.newInstance().newXMLGregorianCalendar(
+					currentDateTime.getYear(), currentDateTime.getMonthValue(), currentDateTime.getDayOfMonth(),
+					currentDateTime.getHour(), currentDateTime.getMinute(), currentDateTime.getSecond(), DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED);
 		} catch (DatatypeConfigurationException e) {
 			throw new RuntimeException(e);
 		}
-
-		return createDate;
 	}
-	
+
+
 	/**
 	 * Information supplied to enable the matching of an entry with the items that the
 	 * transfer is intended to settle, such as commercial invoices in an accounts' receivable

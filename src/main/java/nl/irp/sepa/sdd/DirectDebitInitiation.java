@@ -8,7 +8,6 @@ import static nl.irp.sepa.sdd.Utils.createIdParty;
 import static nl.irp.sepa.sdd.Utils.createParty;
 import static nl.irp.sepa.sdd.Utils.createPaymentIdentification;
 import static nl.irp.sepa.sdd.Utils.createRmtInf;
-import static nl.irp.sepa.sdd.Utils.createXMLGregorianCalendar;
 import static nl.irp.sepa.sdd.Utils.createXMLGregorianCalendarDate;
 import iso.std.iso._20022.tech.xsd.pain_008_001.ChargeBearerType1Code;
 import iso.std.iso._20022.tech.xsd.pain_008_001.CustomerDirectDebitInitiationV02;
@@ -28,6 +27,8 @@ import iso.std.iso._20022.tech.xsd.pain_008_001.ServiceLevel8Choice;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -35,8 +36,6 @@ import java.util.UUID;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-
-import org.joda.time.LocalDate;
 
 
 /**
@@ -64,7 +63,7 @@ public class DirectDebitInitiation {
 	 * @param name
 	 * @param date
 	 */
-	public void buildGroupHeader(String msgId, String name, Date date) {
+	public void buildGroupHeader(String msgId, String name, LocalDateTime date) {
 		groupHeader = new GroupHeader39();
 		
 		// if no msgId is given create one
@@ -75,7 +74,7 @@ public class DirectDebitInitiation {
 		groupHeader.setMsgId(msgId);
 		
 		// Date and time at which the message was created.
-		groupHeader.setCreDtTm( createXMLGregorianCalendar(date));
+		groupHeader.setCreDtTm( nl.irp.sepa.Utils.createXMLGregorianCalendarDate(date));
 		
 		// Number of individual transactions contained in the message.
 		groupHeader.setNbOfTxs("0");
@@ -100,7 +99,7 @@ public class DirectDebitInitiation {
 	}
 	
 	public PaymentInstruction paymentInstruction(
-			String pmtInfId, Date reqdColltnDt, 
+			String pmtInfId, LocalDate reqdColltnDt,
 			String creditor, SequenceType1Code type,
 			String creditorCountry, List<String> addressLines, 
 			String creditorAccount, String creditorBic) {
@@ -125,7 +124,7 @@ public class DirectDebitInitiation {
 		 * collected from the debtor.
 		 */
 		public PaymentInstruction(
-				String pmtInfId, Date reqdColltnDt, 
+				String pmtInfId, LocalDate reqdColltnDt,
 				String creditor, SequenceType1Code type,
 				String creditorCountry, List<String> addressLines,
 				String creditorAccount, String creditorBic) {
@@ -260,7 +259,7 @@ public class DirectDebitInitiation {
 			
 			MandateRelatedInformation6 mandateInf = new MandateRelatedInformation6();
 			mandateInf.setMndtId(mandateId);
-			mandateInf.setDtOfSgntr( createXMLGregorianCalendarDate(dtOfSgntr.toDate()));
+			mandateInf.setDtOfSgntr(createXMLGregorianCalendarDate(dtOfSgntr));
 			mandateInf.setAmdmntInd(false);
 			transaction.setMndtRltdInf(mandateInf);
 

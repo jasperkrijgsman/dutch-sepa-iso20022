@@ -22,9 +22,7 @@ import iso.std.iso._20022.tech.xsd.pain_008_001.RemittanceInformation5;
 import iso.std.iso._20022.tech.xsd.pain_008_001.StructuredRemittanceInformation7;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -38,37 +36,15 @@ public class Utils {
 	
 	private static Pattern bicRegex =
 			Pattern.compile("([a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?)");
-
-	public static XMLGregorianCalendar createXMLGregorianCalendar(Date currentDateTime) {
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTime(currentDateTime);
-
-		XMLGregorianCalendar createDate;
-		try {
-			createDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
-			createDate.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-			createDate.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
-		} catch (DatatypeConfigurationException e) {
-			throw new RuntimeException(e);
-		}
-
-		return createDate;
-	}
 	
-	public static XMLGregorianCalendar createXMLGregorianCalendarDate(Date currentDateTime) {
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTime(currentDateTime);
-
-		XMLGregorianCalendar createDate;
+	public static XMLGregorianCalendar createXMLGregorianCalendarDate(LocalDate currentDateTime) {
 		try {
-			createDate = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(
-				calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH),
+			return DatatypeFactory.newInstance().newXMLGregorianCalendarDate(
+				currentDateTime.getYear(), currentDateTime.getMonthValue(), currentDateTime.getDayOfMonth(),
 				DatatypeConstants.FIELD_UNDEFINED);
 		} catch (DatatypeConfigurationException e) {
 			throw new RuntimeException(e);
 		}
-
-		return createDate;
 	}
 	
 	/**
