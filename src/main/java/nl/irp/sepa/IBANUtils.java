@@ -1,13 +1,18 @@
 package nl.irp.sepa;
 
+import java.math.BigInteger;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
+import com.neovisionaries.i18n.CountryCode;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 public class IBANUtils {
+
+	private static final int IBANNUMBER_MIN_SIZE = 15;
+	private static final int IBANNUMBER_MAX_SIZE = 34;
+	private static final BigInteger IBANNUMBER_MAGIC_NUMBER = new BigInteger("97");
 
 	/**
 	 * Format the code as a human readable string.
@@ -31,34 +36,40 @@ public class IBANUtils {
 	}
 	
 	public static boolean validate(String iban) {
-		
 		// Check ISO 3166-1 country code
-		final String country = iban.substring(0, 2);
-		if(!StringUtils.isAlpha(country))
-			return false;
-		//if (!ISOCountries.getInstance().isValidCode(country)) {
-		//	this.invalidCause = "Invalid ISO country code: "+country;
-		//	return false;
-		//}
-		
-		
-		//The basis of the IBAN validation is to convert the IBAN into a number and to perform a basic 
-		//Mod-97 calculation (as described in ISO 7064) on it. If the IBAN is valid, then the remainder 
-		//equals 1. Rule process of IBAN validation is:
-		//Check that the total IBAN length is correct as per the country. If not, the IBAN is invalid.
-		//Move the four initial characters to the end of the string.
-		//Replace each letter in the string with two digits, thereby expanding the string, where A=10, B=11, ..., Z=35.
-		//Interpret the string as a decimal integer and compute the remainder of that number on division by 97.
-		/*
-		final StringBuffer bban = new StringBuffer(code.substring(4));
-		if (bban.length()==0) {
-			this.invalidCause="Empty Basic Bank Account Number";
+		try {
+			final String country = iban.substring(0, 2);
+			CountryCode.valueOf(country);
+		}
+		catch (IllegalArgumentException e) {
 			return false;
 		}
-		*/
-		
-		//ISO 7064,
-		return true;
+
+		String newAccountNumber = iban.trim();
+
+		// Check that the total IBAN length is correct as per the country. If not, the IBAN is invalid. We could also check
+		// for specific length according to country, but for now we won't
+		if (newAccountNumber.length() < IBANNUMBER_MIN_SIZE || newAccountNumber.length() > IBANNUMBER_MAX_SIZE) {
+			return false;
+		}
+
+		// Move the four initial characters to the end of the string.
+		newAccountNumber = newAccountNumber.substring(4) + newAccountNumber.substring(0, 4);
+
+		// Replace each letter in the string with two digits, thereby expanding the string, where A = 10, B = 11, ..., Z = 35.
+		StringBuilder numericAccountNumber = new StringBuilder();
+		for (int i = 0; i < newAccountNumber.length(); i++) {
+			numericAccountNumber.append(Character.getNumericValue(newAccountNumber.charAt(i)));
+		}
+
+		// Interpret the string as a decimal integer and compute the remainder of that number on division by 97.
+		try {
+			BigInteger ibanNumber = new BigInteger(numericAccountNumber.toString());
+			return ibanNumber.mod(IBANNUMBER_MAGIC_NUMBER).intValue() == 1;
+		}
+		catch (NumberFormatException e) {
+			return false;
+		}
 	}
 	
 	public static String removeNonAlpha(final String iban) {

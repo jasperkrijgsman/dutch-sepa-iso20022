@@ -27,7 +27,7 @@ public class IBANUtilsTest {
 	
 	@Test
 	public void testValidate() {
-		assertThat(IBANUtils.validate(iban_nl), is(true));
+		assertThat(IBANUtils.validate("NL49ABNA0414114988"), is(true));
 	}
 
 }
