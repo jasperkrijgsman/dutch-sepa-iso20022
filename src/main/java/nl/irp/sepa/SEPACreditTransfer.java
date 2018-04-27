@@ -1,31 +1,19 @@
 package nl.irp.sepa;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static nl.irp.sepa.Utils.*;
-import iso.std.iso._20022.tech.xsd.pain_001_001.ChargeBearerType1Code;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CreditTransferTransactionInformation10;
-import iso.std.iso._20022.tech.xsd.pain_001_001.CustomerCreditTransferInitiationV03;
-import iso.std.iso._20022.tech.xsd.pain_001_001.Document;
-import iso.std.iso._20022.tech.xsd.pain_001_001.GroupHeader32;
-import iso.std.iso._20022.tech.xsd.pain_001_001.LocalInstrument2Choice;
-import iso.std.iso._20022.tech.xsd.pain_001_001.ObjectFactory;
-import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentIdentification1;
-import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentInstructionInformation3;
-import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentMethod3Code;
-import iso.std.iso._20022.tech.xsd.pain_001_001.PaymentTypeInformation19;
-import iso.std.iso._20022.tech.xsd.pain_001_001.ServiceLevel8Choice;
-
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.UUID;
+import iso.std.iso._20022.tech.xsd.pain_001_001.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import static com.google.common.base.Preconditions.checkArgument;
+import static nl.irp.sepa.Utils.*;
 
 /**
  * The Customer SEPA Credit Transfer Initiation message is sent by the initiating party to the debtor bank. It
@@ -69,7 +57,7 @@ public class SEPACreditTransfer {
 	 * @param name Name of the party that initiates the payment.
 	 * @throws DatatypeConfigurationException 
 	 */
-	public void buildGroupHeader(String msgId, String name, Date date) {
+	public void buildGroupHeader(String msgId, String name, LocalDateTime date) {
 		groupHeader =  new GroupHeader32();
 		// Point to point reference, as assigned by the instructing party, and sent to the next
 		// party in the chain to unambiguously identify the message.
@@ -83,7 +71,7 @@ public class SEPACreditTransfer {
 		groupHeader.setMsgId(msgId);
 		
 		// Date and time at which the message was created.
-		groupHeader.setCreDtTm( createXMLGregorianCalendar(date));
+		groupHeader.setCreDtTm( createXMLGregorianCalendarDate(date));
 		
 		// Number of individual transactions contained in the message.
 		groupHeader.setNbOfTxs("0");
@@ -106,9 +94,10 @@ public class SEPACreditTransfer {
 	 * included in the credit transfer initiation.
 	 * @param pmtInfId Unique identification, as assigned by a sending party, to unambiguously identify the 
 	 * payment information group within the message.
-	 * @param date This is the date on which the debtor's account is to be debited. 
+	 * @param reqdExctnDt This is the date on which the debtor's account is to be debited.
 	 * @param debtorNm Party that owes an amount of money to the (ultimate) creditor.
 	 * @param debtorAccountIBAN Unambiguous identification of the account of the debtor to which a debit 
+	 * @param financialInstitutionBIC BIC number of the financial institution
 	 * entry will be made as a result of the transaction.
 	 * @return 
 	 * @throws DatatypeConfigurationException
@@ -146,7 +135,7 @@ public class SEPACreditTransfer {
 		paymentInstructionInformation.setPmtTpInf(paymentTypeInformation);
 
 		// This is the date on which the debtor's account is to be debited. 
-		paymentInstructionInformation.setReqdExctnDt( createXMLGregorianCalendarDate(reqdExctnDt.toDate()));
+		paymentInstructionInformation.setReqdExctnDt( Utils.createXMLGregorianCalendarDate(reqdExctnDt));
 		
 		// Party that owes an amount of money to the (ultimate) creditor.
 		paymentInstructionInformation.setDbtr( createParty(debtorNm) );

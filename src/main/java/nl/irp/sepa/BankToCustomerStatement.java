@@ -9,7 +9,6 @@ import iso.std.iso._20022.tech.xsd.camt_053_001.CashAccount16;
 import iso.std.iso._20022.tech.xsd.camt_053_001.CashAccount20;
 import iso.std.iso._20022.tech.xsd.camt_053_001.CashBalance3;
 import iso.std.iso._20022.tech.xsd.camt_053_001.CopyDuplicate1Code;
-import iso.std.iso._20022.tech.xsd.camt_053_001.DateTimePeriodDetails;
 import iso.std.iso._20022.tech.xsd.camt_053_001.Document;
 import iso.std.iso._20022.tech.xsd.camt_053_001.GroupHeader42;
 import iso.std.iso._20022.tech.xsd.camt_053_001.Pagination;
